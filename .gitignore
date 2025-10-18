@@ -1,0 +1,46 @@
+# ---- General ----
+.DS_Store
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+
+# ---- Logs ----
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ---- Editor settings ----
+.vscode/
+.idea/
+*.iml
+
+# ---- Frontend (React + Vite + TypeScript) ----
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+frontend/.vite/
+frontend/.next/  # Just in case of future migration
+
+# ---- Backend (Java / Maven / Gradle) ----
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/*.iml
+backend/out/
+*.class
+
+# Gradle
+backend/.gradle/
+backend/build/
+
+# ---- OS / Misc ----
+Thumbs.db
+*.swp
