@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
@@ -26,14 +27,14 @@ public class ProductController {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<Product> getProductById(@PathVariable UUID id) {
         return productService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(@PathVariable UUID id, @RequestBody Product product) {
         try {
             Product updatedProduct = productService.update(id, product);
             return ResponseEntity.ok(updatedProduct);
@@ -43,7 +44,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -53,10 +54,10 @@ public class ProductController {
         return productService.searchByName(name);
     }
 
-    @GetMapping("/search/category")
-    public List<Product> searchProductsByCategory(@RequestParam String category) {
-        return productService.searchByCategory(category);
-    }
+//    @GetMapping("/search/category")
+//    public List<Product> searchProductsByCategory(@RequestParam String category) {
+//        return productService.searchByCategory(category);
+//    }
 
     @GetMapping("/search/SKU")
     public Product searchProductsBySKU(@RequestParam String category) {

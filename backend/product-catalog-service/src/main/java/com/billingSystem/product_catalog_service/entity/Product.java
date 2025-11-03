@@ -1,37 +1,44 @@
 package com.billingSystem.product_catalog_service.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
+@Table(name = "products")
 public class Product {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
+
     private String name;
-    private String category;
+
     private String sku;
-    private Integer quantity;
-    private Double price;
+    private UUID supplierId;
+
+    private Integer minStockLevel;
+
     private String description;
 
-    public Product(Long id, String name, double price, String description, String category, String sku, int quantity) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.description = description;
-        this.category = category;
-        this.sku = sku;
-        this.quantity = quantity;
-    }
+    private Double costPrice;
 
-    public Long getId() {
+    private Double sellingPrice;
+
+    private Integer quantityOnHand;
+
+    private OffsetDateTime createdAt;
+
+    private OffsetDateTime updatedAt;
+
+
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -43,14 +50,6 @@ public class Product {
         this.name = name;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     public String getSku() {
         return sku;
     }
@@ -59,20 +58,12 @@ public class Product {
         this.sku = sku;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public Integer getMinStockLevel() {
+        return minStockLevel;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
+    public void setMinStockLevel(Integer minStockLevel) {
+        this.minStockLevel = minStockLevel;
     }
 
     public String getDescription() {
@@ -83,5 +74,65 @@ public class Product {
         this.description = description;
     }
 
+    public Double getCostPrice() {
+        return costPrice;
+    }
 
+    public void setCostPrice(Double costPrice) {
+        this.costPrice = costPrice;
+    }
+
+    public Double getSellingPrice() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(Double sellingPrice) {
+        this.sellingPrice = sellingPrice;
+    }
+
+    public Integer getQuantityOnHand() {
+        return quantityOnHand;
+    }
+
+    public void setQuantityOnHand(Integer quantityOnHand) {
+        this.quantityOnHand = quantityOnHand;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public UUID getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(UUID supplierId) {
+        this.supplierId = supplierId;
+    }
+
+    public Product(UUID id, String name, String sku, UUID supplierId, Integer minStockLevel, String description, Double costPrice, Double sellingPrice, Integer quantityOnHand, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+        this.id = id;
+        this.name = name;
+        this.sku = sku;
+        this.supplierId = supplierId;
+        this.minStockLevel = minStockLevel;
+        this.description = description;
+        this.costPrice = costPrice;
+        this.sellingPrice = sellingPrice;
+        this.quantityOnHand = quantityOnHand;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 }

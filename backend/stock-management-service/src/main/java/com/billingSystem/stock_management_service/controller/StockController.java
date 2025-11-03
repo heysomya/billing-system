@@ -1,11 +1,14 @@
 package com.billingSystem.stock_management_service.controller;
 
+import com.billingSystem.stock_management_service.entity.InventoryLog;
 import com.billingSystem.stock_management_service.entity.Product;
 import com.billingSystem.stock_management_service.service.StockService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/stock")
@@ -13,18 +16,19 @@ import java.util.List;
 public class StockController {
     private final StockService stockService;
 
-    @PostMapping("/add")
-    public Product addProduct(@RequestBody Product p) { return stockService.addProduct(p); }
-
-    @PutMapping("/update/{id}")
-    public Product updateStock(@PathVariable Long id, @RequestParam int newQty) {
-        return stockService.updateStock(id, newQty);
+    @PostMapping("/update/{id}")
+    public ResponseEntity<String> updateStock(@PathVariable UUID id, @RequestParam int updatedQuantity, @RequestParam String reason) {
+        return ResponseEntity.ok(stockService.updateStock(id, updatedQuantity, reason));
     }
 
-    @GetMapping("/{id}")
-    public Product getProduct(@PathVariable Long id) { return stockService.getProduct(id); }
+    @GetMapping("/logs/{productId}")
+    public List<InventoryLog> getLogsForProduct(@PathVariable UUID productId) {
+        return stockService.getInventoryLogs(productId);
+    }
 
-    @GetMapping("/low")
-    public List<Product> getAllLowStock() { return stockService.getAllLowStock(); }
+    @GetMapping("/{productId}")
+    public Integer getStock(@PathVariable UUID productId) {
+        return stockService.getQuantity(productId);
+    }
 }
 
