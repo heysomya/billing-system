@@ -50,7 +50,7 @@ public class ProductController {
     }
 
     @GetMapping("/search/name/{name}")
-    public List<Product> searchProductsByName(@PathVariable String name) {
+    public Product searchProductsByName(@PathVariable String name) {
         return productService.searchByName(name);
     }
 
