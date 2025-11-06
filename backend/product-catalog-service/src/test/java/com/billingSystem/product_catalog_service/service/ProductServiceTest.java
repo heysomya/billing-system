@@ -140,13 +140,11 @@ public class ProductServiceTest {
 
     @Test
     void testSearchByName() {
-        List<Product> products = Arrays.asList(product1);
-        Mockito.when(productRepository.findByName("Logitech Wireless Mouse")).thenReturn(products);
+        Mockito.when(productRepository.findByName("Logitech Wireless Mouse")).thenReturn(product1);
 
-        List<Product> result = productService.searchByName("Logitech Wireless Mouse");
+        Product result = productService.searchByName("Logitech Wireless Mouse");
 
-        Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals("Logitech Wireless Mouse", result.get(0).getName());
+        Assertions.assertEquals("Logitech Wireless Mouse", result.getName());
     }
 
     @Test
