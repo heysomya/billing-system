@@ -1,10 +1,13 @@
 package com.billingSystem.product_catalog_service.service;
 
+import com.billingSystem.product_catalog_service.entity.InventoryLog;
 import com.billingSystem.product_catalog_service.entity.Product;
 import com.billingSystem.product_catalog_service.repository.ProductRepository;
+import com.billingSystem.product_catalog_service.repository.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +18,14 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private StockRepository stockRepository;
+
+
     public Product create(Product product) {
         product.setCreatedAt(OffsetDateTime.now());
         product.setUpdatedAt(OffsetDateTime.now());
+        saveLogs(product);
         return productRepository.save(product);
     }
 
@@ -40,12 +48,20 @@ public class ProductService {
                     existingProduct.setSellingPrice(updatedProduct.getSellingPrice());
                     existingProduct.setMinStockLevel(updatedProduct.getMinStockLevel());
                     existingProduct.setUpdatedAt(OffsetDateTime.now());
+                    saveLogs(updatedProduct);
                     return productRepository.save(existingProduct);
                 })
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + id));
     }
 
     public void delete(UUID id) {
+        Optional<Product> products = productRepository.findById(id);
+        if (products.isPresent()) {
+            saveLogs(products.get());
+        }
+        else{
+            throw new RuntimeException("Product not found with " + id);
+        }
         productRepository.deleteById(id);
     }
 
@@ -55,6 +71,15 @@ public class ProductService {
 
     public Product searchBySKU(String name) {
         return productRepository.findBySku(name);
+    }
+
+    private void saveLogs(Product product) {
+        InventoryLog log = new InventoryLog();
+        log.setProduct(product);
+        log.setQuantityChange(product.getQuantityOnHand());
+        log.setReason("initial stock");
+        log.setCreatedAt(Instant.now());
+        stockRepository.save(log);
     }
 }
 

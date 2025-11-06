@@ -1,7 +1,9 @@
 package com.billingSystem.product_catalog_service.service;
 
+import com.billingSystem.product_catalog_service.entity.InventoryLog;
 import com.billingSystem.product_catalog_service.entity.Product;
 import com.billingSystem.product_catalog_service.repository.ProductRepository;
+import com.billingSystem.product_catalog_service.repository.StockRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,10 +18,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 public class ProductServiceTest {
 
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private StockRepository stockRepository;
+
 
     @InjectMocks
     private ProductService productService;
@@ -67,7 +76,7 @@ public class ProductServiceTest {
 
     @Test
     void testCreateProduct() {
-        Mockito.when(productRepository.save(product1)).thenReturn(product1);
+        when(productRepository.save(product1)).thenReturn(product1);
 
         Product created = productService.create(product1);
 
@@ -79,7 +88,7 @@ public class ProductServiceTest {
     void testFindAllProducts() {
         List<Product> products = Arrays.asList(product1);
 
-        Mockito.when(productRepository.findAll()).thenReturn(products);
+        when(productRepository.findAll()).thenReturn(products);
 
         List<Product> result = productService.findAll();
 
@@ -89,7 +98,7 @@ public class ProductServiceTest {
 
     @Test
     void testFindByIdFound() {
-        Mockito.when(productRepository.findById(id1)).thenReturn(Optional.of(product1));
+        when(productRepository.findById(id1)).thenReturn(Optional.of(product1));
 
         Optional<Product> result = productService.findById(id1);
 
@@ -99,17 +108,15 @@ public class ProductServiceTest {
 
     @Test
     void testFindByIdNotFound() {
-        Mockito.when(productRepository.findById(id2)).thenReturn(Optional.empty());
-
+        when(productRepository.findById(id2)).thenReturn(Optional.empty());
         Optional<Product> result = productService.findById(id2);
-
         Assertions.assertFalse(result.isPresent());
     }
 
     @Test
     void testUpdateProductSuccess() {
-        Mockito.when(productRepository.findById(id1)).thenReturn(Optional.of(product1));
-        Mockito.when(productRepository.save(Mockito.any(Product.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(productRepository.findById(id1)).thenReturn(Optional.of(product1));
+        when(productRepository.save(Mockito.any(Product.class))).thenAnswer(i -> i.getArguments()[0]);
 
         Product result = productService.update(id1, updatedProduct);
 
@@ -119,9 +126,9 @@ public class ProductServiceTest {
 
     @Test
     void testUpdateProductNotFound() {
-        Mockito.when(productRepository.findById(id2)).thenReturn(Optional.empty());
+        when(productRepository.findById(id2)).thenReturn(Optional.empty());
 
-        RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             productService.update(id2, updatedProduct);
         });
 
@@ -130,17 +137,27 @@ public class ProductServiceTest {
 
     @Test
     void testDeleteProduct() {
-        Mockito.doNothing().when(productRepository).deleteById(id1);
-
-        // No exception means success
+        when(productRepository.findById(any())).thenReturn(Optional.ofNullable(product1));
         productService.delete(id1);
 
         Mockito.verify(productRepository, Mockito.times(1)).deleteById(id1);
+        Mockito.verify(stockRepository, Mockito.times(1)).save(Mockito.any(InventoryLog.class));
+    }
+
+    @Test
+    void testDeleteProductWhenIdNotFound() {
+
+        when(productRepository.findById(any())).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            productService.delete(id1);
+        });
+        Assertions.assertEquals(exception.getMessage(), "Product not found with 9b180abb-63ee-4bf8-9404-35c1e2316881");
     }
 
     @Test
     void testSearchByName() {
-        Mockito.when(productRepository.findByName("Logitech Wireless Mouse")).thenReturn(product1);
+        when(productRepository.findByName("Logitech Wireless Mouse")).thenReturn(product1);
 
         Product result = productService.searchByName("Logitech Wireless Mouse");
 
@@ -149,7 +166,7 @@ public class ProductServiceTest {
 
     @Test
     void testSearchBySKU() {
-        Mockito.when(productRepository.findBySku("SKU1001")).thenReturn(product1);
+        when(productRepository.findBySku("SKU1001")).thenReturn(product1);
 
         Product result = productService.searchBySKU("SKU1001");
 
