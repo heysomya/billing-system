@@ -24,6 +24,9 @@ const Products = () => {
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"add" | "edit">("add");
+  const [searchType, setSearchType] = useState<"name" | "SKU">("name");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const API_BASE = "http://localhost:8090/api/products";
 
@@ -53,6 +56,66 @@ const Products = () => {
     fetchProducts();
   }, []);
 
+  // const handleSearch = async () => {
+  //   if (!searchQuery.trim()) return;
+
+  //   setIsSearching(true);
+  //   try {
+  //     const response = await fetch(
+  //       `${API_BASE}/search/${searchType}/${encodeURIComponent(searchQuery)}`
+  //     );
+  //     if (!response.ok) throw new Error("Search failed");
+  //     const result = await response.json();
+
+  //     // backend returns a single object — wrap it in an array for rendering
+  //     setProducts(result ? [result] : []);
+  //   } catch (error) {
+  //     console.error("Search error:", error);
+  //   } finally {
+  //     setIsSearching(false);
+  //   }
+  // };
+  
+  const handleSearch = async () => {
+    // if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      await fetchProducts(); // reload all products
+      return;
+    }
+    
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `${API_BASE}/search/${searchType}/${encodeURIComponent(searchQuery)}`
+      );
+      if (!response.ok) throw new Error("Search failed");
+      
+      const result = await response.json();
+      
+      // Handle all possible response shapes:
+      // - Array of products
+      // - Single product object
+      // - Empty object or null
+      if (Array.isArray(result)) {
+        setProducts(result.length > 0 ? result : []);
+      } else if (result && Object.keys(result).length > 0) {
+        setProducts([result]);
+      } else {
+        setProducts([]); // Empty object → clear products
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      setProducts([]); // Clear on error too
+    } finally {
+      setIsSearching(false);
+    }
+  };
+  
+    const handleClearSearch = async () => {
+      setSearchQuery("");
+      await fetchProducts(); // reload all products
+    };
+  
   // Open Add Product Modal
   const handleAdd = () => {
     setFormMode("add");
@@ -129,11 +192,45 @@ const Products = () => {
     <MainLayout>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-semibold">Products</h1>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
+        <div className="flex items-center flex-wrap gap-2">
+          <select
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value as "name" | "SKU")}
+            className="border border-gray-300 rounded-md p-2"
+          >
+            <option value="name">Search by Name</option>
+            <option value="SKU">Search by SKU</option>
+          </select>
+
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            placeholder={`Enter ${searchType}`}
+            className="border border-gray-300 rounded-md p-2 w-48 sm:w-64"
+          />
+
+          <Button onClick={handleSearch} disabled={isSearching}>
+            {isSearching ? "Searching..." : "Search"}
+          </Button>
+
+          {searchQuery && (
+            <Button variant="outline" onClick={handleClearSearch}>
+              Clear
+            </Button>
+          )}
+        </div>
+
         <Button onClick={handleAdd} className="flex items-center space-x-2">
           <Plus className="w-4 h-4" />
           <span>Add Product</span>
         </Button>
       </div>
+
 
       {products.length === 0 ? (
         <p className="text-gray-500 text-center mt-10">No products found.</p>
