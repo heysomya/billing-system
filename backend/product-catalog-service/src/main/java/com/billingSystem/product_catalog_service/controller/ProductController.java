@@ -60,8 +60,8 @@ public class ProductController {
 //    }
 
     @GetMapping("/search/SKU")
-    public Product searchProductsBySKU(@RequestParam String category) {
-        return productService.searchBySKU(category);
+    public Product searchProductsBySKU(@RequestParam String SKU) {
+        return productService.searchBySKU(SKU);
     }
 }
 
