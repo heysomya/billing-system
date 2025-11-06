@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import MainLayout from "@/layouts/MainLayout";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card,  CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash } from "lucide-react";
 import ProductFormDialog, { type FormData } from "./ProductFormDialog";
@@ -56,28 +56,7 @@ const Products = () => {
     fetchProducts();
   }, []);
 
-  // const handleSearch = async () => {
-  //   if (!searchQuery.trim()) return;
-
-  //   setIsSearching(true);
-  //   try {
-  //     const response = await fetch(
-  //       `${API_BASE}/search/${searchType}/${encodeURIComponent(searchQuery)}`
-  //     );
-  //     if (!response.ok) throw new Error("Search failed");
-  //     const result = await response.json();
-
-  //     // backend returns a single object — wrap it in an array for rendering
-  //     setProducts(result ? [result] : []);
-  //   } catch (error) {
-  //     console.error("Search error:", error);
-  //   } finally {
-  //     setIsSearching(false);
-  //   }
-  // };
-  
   const handleSearch = async () => {
-    // if (!searchQuery.trim()) return;
     if (!searchQuery.trim()) {
       await fetchProducts(); // reload all products
       return;
@@ -91,11 +70,7 @@ const Products = () => {
       if (!response.ok) throw new Error("Search failed");
       
       const result = await response.json();
-      
-      // Handle all possible response shapes:
-      // - Array of products
-      // - Single product object
-      // - Empty object or null
+
       if (Array.isArray(result)) {
         setProducts(result.length > 0 ? result : []);
       } else if (result && Object.keys(result).length > 0) {
