@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "@/layouts/MainLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Trash } from "lucide-react";
 import ProductFormDialog, { type FormData } from "./ProductFormDialog";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
@@ -65,8 +65,8 @@ const Products = () => {
   const handleEdit = (product: Product) => {
     setFormMode("edit");
     setSelectedProduct(product);
-    setEditingProductId(product.id); // save ID for PUT
-    setDetailsProduct(null); // close details dialog
+    setEditingProductId(product.id);
+    setDetailsProduct(null);
     setIsFormOpen(true);
   };
 
@@ -104,7 +104,23 @@ const Products = () => {
     }
   };
 
-  // Open product details modal
+  // Delete product
+  const handleDelete = async (productId: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/delete/${productId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete product");
+
+      setDetailsProduct(null); // Close details dialog
+      await fetchProducts(); // Refresh list
+    } catch (err) {
+      console.error("Error deleting product:", err);
+    }
+  };
+
   const openProductDetails = (product: Product) => {
     setDetailsProduct(product);
   };
@@ -162,9 +178,18 @@ const Products = () => {
 
             <div className="flex justify-end space-x-2 mt-4">
               <Button
+                variant="destructive"
+                className="flex items-center space-x-2"
+                onClick={() => detailsProduct && handleDelete(detailsProduct.id)}
+              >
+                <Trash className="w-4 h-4" />
+                <span>Delete</span>
+              </Button>
+
+              <Button
                 variant="default"
                 className="flex items-center space-x-2"
-                onClick={() => handleEdit(detailsProduct)}
+                onClick={() => detailsProduct && handleEdit(detailsProduct)}
               >
                 <Edit className="w-4 h-4" />
                 <span>Edit</span>
