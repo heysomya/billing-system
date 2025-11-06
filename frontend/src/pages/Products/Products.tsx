@@ -141,35 +141,50 @@ const Products = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
             <Card
-              key={product.sku}
-              className="hover:shadow-lg cursor-pointer"
+              key={product.id}
+              className="hover:shadow-lg cursor-pointer overflow-hidden"
               onClick={() => openProductDetails(product)}
             >
-              <CardHeader className="text-center">
-                <CardTitle className="text-lg font-semibold">{product.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-gray-600">
-                <p>SKU: {product.sku}</p>
-                <p>Cost Price: ${product.costPrice}</p>
-                <p>Selling Price: ${product.sellingPrice}</p>
-                <p>Stock: {product.quantityOnHand}</p>
+              {/* Placeholder Image */}
+              <div className="h-40 w-full overflow-hidden">
+                <img
+                  src={"/images/placeholder.png"}
+                  alt={product.name}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Product Info */}
+              <CardContent className="p-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{product.name}</h3>
+                  <span className="text-gray-700 font-medium">${product.sellingPrice}</span>
+                </div>
               </CardContent>
             </Card>
           ))}
-        </div>
+      </div>
+
       )}
 
       {/* Product Details Dialog */}
       {detailsProduct && (
         <Dialog open={!!detailsProduct} onOpenChange={() => setDetailsProduct(null)}>
           <DialogContent className="sm:max-w-lg">
+            {/* Product Image */}
+            <div className="h-48 w-full overflow-hidden rounded-md mb-4">
+              <img
+                src={"/images/placeholder.png"}
+                alt={detailsProduct.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
             <DialogTitle>{detailsProduct.name}</DialogTitle>
-            <DialogDescription>Product details and actions</DialogDescription>
+            <DialogDescription>{detailsProduct.description}</DialogDescription>
 
             <div className="mt-4 space-y-2 text-gray-700">
-              <p><strong>ID:</strong> {detailsProduct.id}</p>
               <p><strong>SKU:</strong> {detailsProduct.sku}</p>
-              <p><strong>Description:</strong> {detailsProduct.description}</p>
               <p><strong>Cost Price:</strong> ${detailsProduct.costPrice}</p>
               <p><strong>Selling Price:</strong> ${detailsProduct.sellingPrice}</p>
               <p><strong>Stock:</strong> {detailsProduct.quantityOnHand}</p>
