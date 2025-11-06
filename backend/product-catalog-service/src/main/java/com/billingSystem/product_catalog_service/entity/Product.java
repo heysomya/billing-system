@@ -32,7 +32,8 @@ public class Product {
 
     private OffsetDateTime updatedAt;
 
-
+    public Product() {
+    }
 
     public UUID getId() {
         return id;
