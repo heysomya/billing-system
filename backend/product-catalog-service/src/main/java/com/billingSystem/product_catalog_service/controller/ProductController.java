@@ -49,8 +49,8 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search/name")
-    public List<Product> searchProductsByName(@RequestParam String name) {
+    @GetMapping("/search/name/{name}")
+    public Product searchProductsByName(@PathVariable String name) {
         return productService.searchByName(name);
     }
 
@@ -59,9 +59,9 @@ public class ProductController {
 //        return productService.searchByCategory(category);
 //    }
 
-    @GetMapping("/search/SKU")
-    public Product searchProductsBySKU(@RequestParam String category) {
-        return productService.searchBySKU(category);
+    @GetMapping("/search/SKU/{SKU}")
+    public Product searchProductsBySKU(@PathVariable String SKU) {
+        return productService.searchBySKU(SKU);
     }
 }
 

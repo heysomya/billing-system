@@ -137,14 +137,12 @@ public class ProductControllerTest {
 
     @Test
     void testSearchProductsByName() {
-        List<Product> searchResult = Arrays.asList(product1);
 
-        Mockito.when(productService.searchByName("Logitech Wireless Mouse")).thenReturn(searchResult);
+        Mockito.when(productService.searchByName("Logitech Wireless Mouse")).thenReturn(product1);
 
-        List<Product> actualProducts = productController.searchProductsByName("Logitech Wireless Mouse");
+        Product actualProducts = productController.searchProductsByName("Logitech Wireless Mouse");
 
-        Assertions.assertEquals(1, actualProducts.size());
-        Assertions.assertEquals("Logitech Wireless Mouse", actualProducts.get(0).getName());
+        Assertions.assertEquals("Logitech Wireless Mouse", actualProducts.getName());
     }
     @Test
     void testSearchProductsBySKU() {
