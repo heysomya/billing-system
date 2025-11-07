@@ -1,5 +1,6 @@
 package com.billingSystem.product_catalog_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +39,7 @@ public class Product {
 
     private OffsetDateTime updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<InventoryLog> inventoryLogs = new ArrayList<>();
 
