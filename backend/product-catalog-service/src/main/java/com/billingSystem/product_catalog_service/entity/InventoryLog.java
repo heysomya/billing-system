@@ -1,4 +1,4 @@
-package com.billingSystem.stock_management_service.entity;
+package com.billingSystem.product_catalog_service.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -15,11 +15,10 @@ public class InventoryLog {
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
     private Integer quantityChange;
     private String reason;
     private Instant createdAt;
-
 }
