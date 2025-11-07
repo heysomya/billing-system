@@ -3,6 +3,8 @@ import MainLayout from "@/layouts/MainLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import UpdateStockDialog from "./UpdateStockDialog";
+import InventoryLogsDialog from "./InventoryLogsDialog";
+
 
 type Product = {
   id: string;
@@ -19,6 +21,8 @@ const StockManagement = () => {
   const [updateStockProduct, setUpdateStockProduct] = useState<Product | null>(
     null
   );
+  const [selectedStockProduct, setSelectedStockProduct] = useState<Product | null>(null);
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
 
   const API_BASE = "http://localhost:8090/api/products";
 
@@ -91,6 +95,11 @@ const StockManagement = () => {
     }
   };
 
+  const handleCheckInventory = (product: Product) => {
+    setSelectedStockProduct(product);
+    setIsLogsOpen(true);
+  };
+
   return (
     <MainLayout>
       <div className="flex justify-between items-center mb-6">
@@ -152,16 +161,6 @@ const StockManagement = () => {
                   className="w-full h-full object-contain"
                 />
               </div>
-
-              {/* Product Info */}
-              {/* <CardContent className="p-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">{product.name}</h3>
-                  <span className="text-gray-700 font-medium">
-                    Stock: {product.quantityOnHand}
-                  </span>
-                </div>
-              </CardContent> */}
               <CardContent className="p-4 flex flex-col justify-between">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-lg font-semibold">{product.name}</h3>
@@ -181,7 +180,7 @@ const StockManagement = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    // onClick={() => handleCheckInventoryLog(product)}
+                    onClick={() => handleCheckInventory(product)}
                   >
                     Check Inventory Log
                   </Button>
@@ -196,7 +195,15 @@ const StockManagement = () => {
         onOpenChange={setUpdateStockProduct as any}
         productId={updateStockProduct?.id || null}
         onSubmit={handleSubmitUpdateStock}
-    />
+      />
+      <InventoryLogsDialog
+        product={selectedStockProduct}
+        open={isLogsOpen}
+        onClose={() => {
+         setIsLogsOpen(false);
+
+        }}
+      />
     </MainLayout>
   );
 };
