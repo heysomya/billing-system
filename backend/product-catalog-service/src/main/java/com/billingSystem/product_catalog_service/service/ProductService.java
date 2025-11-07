@@ -49,21 +49,12 @@ public class ProductService {
                     existingProduct.setSellingPrice(updatedProduct.getSellingPrice());
                     existingProduct.setMinStockLevel(updatedProduct.getMinStockLevel());
                     existingProduct.setUpdatedAt(OffsetDateTime.now());
-                    Product savedProduct = productRepository.save(existingProduct);
-                    saveLogs(savedProduct, "updated stock");
-                    return savedProduct;
+                    return productRepository.save(existingProduct);
                 })
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + id));
     }
 
     public void delete(UUID id) {
-        Optional<Product> products = productRepository.findById(id);
-        if (products.isPresent()) {
-            saveLogs(products.get(), "product deleted");
-        }
-        else{
-            throw new RuntimeException("Product not found with " + id);
-        }
         productRepository.deleteById(id);
     }
 

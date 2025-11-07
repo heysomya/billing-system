@@ -39,9 +39,6 @@ public class Product {
 
     private OffsetDateTime updatedAt;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<InventoryLog> inventoryLogs = new ArrayList<>();
 
     public Product() {
     }
