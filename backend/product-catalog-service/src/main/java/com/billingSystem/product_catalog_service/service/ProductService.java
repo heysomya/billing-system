@@ -49,8 +49,9 @@ public class ProductService {
                     existingProduct.setSellingPrice(updatedProduct.getSellingPrice());
                     existingProduct.setMinStockLevel(updatedProduct.getMinStockLevel());
                     existingProduct.setUpdatedAt(OffsetDateTime.now());
-                    saveLogs(updatedProduct, "updated stock");
-                    return productRepository.save(existingProduct);
+                    Product savedProduct = productRepository.save(existingProduct);
+                    saveLogs(savedProduct, "updated stock");
+                    return savedProduct;
                 })
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + id));
     }
