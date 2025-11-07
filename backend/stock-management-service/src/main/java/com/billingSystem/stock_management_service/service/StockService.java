@@ -42,10 +42,10 @@ public class StockService {
         log.setCreatedAt(Instant.now());
         stockRepository.save(log);
 
-        if (product.getQuantityOnHand() < product.getMinStockLevel()) {
-            emailService.sendStockAlert("email", product.getName(), product.getQuantityOnHand());
-            return "Warning: Stock is low for product " + product.getName();
-        }
+//        if (product.getQuantityOnHand() < product.getMinStockLevel()) {
+//            emailService.sendStockAlert("email", product.getName(), product.getQuantityOnHand());
+//            return "Warning: Stock is low for product " + product.getName();
+//        }
         return "Stock updated successfully";
     }
 
