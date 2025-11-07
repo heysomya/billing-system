@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MainLayout from "@/layouts/MainLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import UpdateStockDialog from "./UpdateStockDialog";
 import InventoryLogsDialog from "./InventoryLogsDialog";
+import LowStockCarousel from "./LowStockCarousel";
 
 
 type Product = {
@@ -11,6 +12,7 @@ type Product = {
   name: string;
   sku: string;
   quantityOnHand: number;
+  minStockLevel: number;
 };
 
 const StockManagement = () => {
@@ -23,8 +25,27 @@ const StockManagement = () => {
   );
   const [selectedStockProduct, setSelectedStockProduct] = useState<Product | null>(null);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
 
   const API_BASE = "http://localhost:8090/api/products";
+
+  
+  const fetchLowStockProducts = async () => {
+    try {
+      const res = await fetch("http://localhost:8090/api/products/get/all");
+      if (!res.ok) throw new Error("Failed to fetch products");
+      const data: Product[] = await res.json();
+      const filtered = data.filter(p => p.quantityOnHand < p.minStockLevel);
+      setLowStockProducts(filtered);
+    } catch (err) {
+      console.error(err);
+      setLowStockProducts([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchLowStockProducts();
+  }, []);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
@@ -89,6 +110,7 @@ const StockManagement = () => {
       alert("Stock updated successfully!");
       // Optionally refresh products
       await handleSearch();
+      await fetchLowStockProducts(); // <- refresh low-stock carousel
     } catch (err) {
       console.error(err);
       alert("Error updating stock");
@@ -106,8 +128,12 @@ const StockManagement = () => {
         <h1 className="text-3xl font-semibold">Stock Management</h1>
       </div>
 
+      {/* <LowStockCarousel /> */}
+      <LowStockCarousel lowStockProducts={lowStockProducts} />
+
       {/* Search Section */}
       <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
+        <h2 className="text-xl font-semibold mb-2">Check Inventory Stock</h2>
         <div className="flex items-center flex-wrap gap-2">
           <select
             value={searchType}

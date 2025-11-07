@@ -37,6 +37,10 @@ const InternalNavbar = () => {
             Products
           </button>
 
+          <button onClick={() => navigate("/stock")} className={navButtonStyle("/stock")}>
+            Stock
+          </button>
+
           <button onClick={() => navigate("/sales")} className={navButtonStyle("/sales")}>
             Sales
           </button>
