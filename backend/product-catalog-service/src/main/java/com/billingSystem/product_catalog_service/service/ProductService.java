@@ -25,8 +25,9 @@ public class ProductService {
     public Product create(Product product) {
         product.setCreatedAt(OffsetDateTime.now());
         product.setUpdatedAt(OffsetDateTime.now());
-        saveLogs(product);
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        saveLogs(savedProduct, "Initial stock");
+        return savedProduct;
     }
 
     public List<Product> findAll() {
@@ -48,7 +49,7 @@ public class ProductService {
                     existingProduct.setSellingPrice(updatedProduct.getSellingPrice());
                     existingProduct.setMinStockLevel(updatedProduct.getMinStockLevel());
                     existingProduct.setUpdatedAt(OffsetDateTime.now());
-                    saveLogs(updatedProduct);
+                    saveLogs(updatedProduct, "updated stock");
                     return productRepository.save(existingProduct);
                 })
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + id));
@@ -57,7 +58,7 @@ public class ProductService {
     public void delete(UUID id) {
         Optional<Product> products = productRepository.findById(id);
         if (products.isPresent()) {
-            saveLogs(products.get());
+            saveLogs(products.get(), "product deleted");
         }
         else{
             throw new RuntimeException("Product not found with " + id);
@@ -73,13 +74,13 @@ public class ProductService {
         return productRepository.findBySku(name);
     }
 
-    private void saveLogs(Product product) {
-        InventoryLog log = new InventoryLog();
-        log.setProduct(product);
-        log.setQuantityChange(product.getQuantityOnHand());
-        log.setReason("initial stock");
-        log.setCreatedAt(Instant.now());
-        stockRepository.save(log);
+    private void saveLogs(Product product, String reason) {
+            InventoryLog log = new InventoryLog();
+            log.setProduct(product);
+            log.setQuantityChange(product.getQuantityOnHand());
+            log.setReason(reason);
+            log.setCreatedAt(Instant.now());
+            stockRepository.save(log);
     }
 }
 
