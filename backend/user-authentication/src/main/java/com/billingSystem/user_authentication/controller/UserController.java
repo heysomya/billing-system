@@ -1,6 +1,8 @@
 package com.billingSystem.user_authentication.controller;
 
+import com.billingSystem.user_authentication.entity.Customer;
 import com.billingSystem.user_authentication.entity.User;
+import com.billingSystem.user_authentication.service.CustomerService;
 import com.billingSystem.user_authentication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CustomerService customerService;
 
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody User user) {
@@ -28,6 +33,12 @@ public class UserController {
         } catch (AuthenticationException e) {
             return ResponseEntity.status(401).body(new AuthenticationResponse("Invalid username or password"));
         }
+    }
+
+    @PostMapping("/registerCustomer")
+    public ResponseEntity<Customer> register(@RequestBody Customer customer) {
+        Customer customers = customerService.register(customer);
+        return ResponseEntity.ok(customers);
     }
 }
 

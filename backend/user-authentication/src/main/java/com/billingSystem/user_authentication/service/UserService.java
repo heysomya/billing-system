@@ -39,8 +39,8 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public String login(String username, String rawPassword) throws AuthenticationException {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, rawPassword));
+    public String login(String username, String password) throws AuthenticationException {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return jwtTokenProvider.createToken(username, user.getRoles());
