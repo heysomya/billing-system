@@ -25,18 +25,18 @@ public class AuthenticationController {
     private UserService userService;
 
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthenticationRequest data) {
-        try {
-            var username = data.getUsername();
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
-
-            var user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-            String token = jwtTokenProvider.createToken(username, user.getRoles());
-
-            return ResponseEntity.ok(new AuthenticationResponse(token));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).body("Invalid credentials");
-        }
-    }
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody AuthenticationRequest data) {
+//        try {
+//            var username = data.getUsername();
+//            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
+//
+//            var user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+//            String token = jwtTokenProvider.createToken(username, user.getRoles());
+//
+//            return ResponseEntity.ok(new AuthenticationResponse(token));
+//        } catch (AuthenticationException e) {
+//            return ResponseEntity.status(401).body("Invalid credentials");
+//        }
+//    }
 }
