@@ -26,7 +26,7 @@ export default function LoginPage() {
         body: JSON.stringify(form),
       });
 
-      if (!response.ok) throw new Error("Invalid credentials");
+      if (!response.ok) throw new Error("Invalid Credentials");
 
       const data = await response.json();
       localStorage.setItem("token", data.token);
@@ -92,6 +92,15 @@ export default function LoginPage() {
                 Register
               </a>
             </p>
+            {/* ✅ Back to Homepage button */}
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => navigate("/")}
+                className="text-sm text-gray-300 hover:text-white transition"
+              >
+                ← Back to Homepage
+              </button>
+            </div>
           </CardContent>
         </Card>
       </div>

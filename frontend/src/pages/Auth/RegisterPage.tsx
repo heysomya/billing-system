@@ -102,6 +102,15 @@ export default function RegisterPage() {
                 Login
               </a>
             </p>
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => navigate("/")}
+                className="text-sm text-gray-300 hover:text-white transition"
+              >
+                ← Back to Homepage
+              </button>
+            </div>
           </CardContent>
         </Card>
       </div>
