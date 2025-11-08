@@ -3,7 +3,7 @@ import MainLayout from "@/layouts/MainLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Trash } from "lucide-react";
+import { Trash, Plus } from "lucide-react";
 
 type Product = {
   id: string;
@@ -36,17 +36,13 @@ const Sales = () => {
 
   const PRODUCT_API = "http://localhost:8090/api/products/get/all";
   const SALE_API = "http://localhost:8092/sales";
-
-  // Dummy cashier userId (replace later with logged-in user's ID)
   const CASHIER_USER_ID = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
 
-  // Load products and dummy customers
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await fetch(PRODUCT_API);
         const productsData = await res.json();
-
         setProducts(productsData);
         setFilteredProducts(productsData);
 
@@ -62,7 +58,6 @@ const Sales = () => {
     fetchData();
   }, []);
 
-  // Search products
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (!query.trim()) setFilteredProducts(products);
@@ -76,7 +71,6 @@ const Sales = () => {
       );
   };
 
-  // Add to cart
   const addToCart = (product: Product) => {
     const existing = cart.find((item) => item.product.id === product.id);
     if (existing) {
@@ -105,15 +99,16 @@ const Sales = () => {
     setCart(cart.filter((item) => item.product.id !== productId));
   };
 
+  const clearCart = () => setCart([]);
+
   const totalAmount = cart.reduce(
     (sum, item) => sum + item.product.sellingPrice * item.quantity,
     0
   );
 
-  // Submit sale
   const handleConfirmSale = async () => {
     if (!selectedCustomer || cart.length === 0) {
-      alert("Please select a customer or add at least one product.");
+      alert("Please select a customer and add at least one product.");
       return;
     }
 
@@ -139,7 +134,7 @@ const Sales = () => {
       if (!res.ok) throw new Error("Failed to create sale");
 
       alert("Sale created successfully!");
-      setCart([]);
+      clearCart();
       setSelectedCustomer("");
       setPaymentMethod("CASH");
       setIsConfirmDialogOpen(false);
@@ -153,125 +148,168 @@ const Sales = () => {
 
   return (
     <MainLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Create Sale</h1>
-      </div>
+      {/* Reduced height layout */}
+      <div className="flex flex-col h-[85vh]">
+        <h1 className="text-3xl font-semibold mb-4">Create Sale</h1>
 
-      {/* Customer Selection */}
-      <div className="mb-4">
-        <label className="font-medium mr-2">Select Customer:</label>
-        <select
-          value={selectedCustomer}
-          onChange={(e) => setSelectedCustomer(e.target.value)}
-          className="border border-gray-300 rounded-md p-2"
-        >
-          <option value="">-- Select --</option>
-          {customers.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-hidden">
+          {/* LEFT PANEL */}
+          <div className="flex flex-col space-y-4 overflow-hidden h-full pr-2">
+            {/* Customer Selection */}
+            <Card className="p-4">
+              <div className="flex justify-between items-center mb-2">
+                <label className="font-medium">Customer</label>
+                <Button variant="outline" size="sm">
+                  <Plus className="w-4 h-4 mr-1" /> Add New
+                </Button>
+              </div>
+              <select
+                value={selectedCustomer}
+                onChange={(e) => setSelectedCustomer(e.target.value)}
+                className="border border-gray-300 rounded-md p-2 w-full"
+              >
+                <option value="">-- Select Customer --</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </Card>
 
-      {/* Payment Method */}
-      <div className="mb-6">
-        <label className="font-medium mr-2">Payment Method:</label>
-        <select
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
-          className="border border-gray-300 rounded-md p-2"
-        >
-          <option value="CASH">Cash</option>
-          <option value="CARD">Card</option>
-          <option value="UPI">UPI</option>
-        </select>
-      </div>
+            {/* Payment Method */}
+            <Card className="p-4">
+              <label className="font-medium mb-2 block">Payment Method</label>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="border border-gray-300 rounded-md p-2 w-full"
+              >
+                <option value="CASH">Cash</option>
+                <option value="CARD">Card</option>
+                <option value="UPI">UPI</option>
+              </select>
+            </Card>
 
-      {/* Search */}
-      <div className="flex items-center gap-2 mb-6">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search product by name or SKU"
-          className="border border-gray-300 rounded-md p-2 w-64"
-        />
-      </div>
+            {/* Product Search */}
+            <Card className="p-4 flex flex-col flex-1 overflow-hidden">
+              <label className="font-medium mb-2 block">Search Product</label>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder="Search by name or SKU"
+                className="border border-gray-300 rounded-md p-2 w-full mb-3"
+              />
 
-      {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-        {filteredProducts.map((p) => (
-          <Card
-            key={p.id}
-            className="cursor-pointer hover:shadow-md"
-            onClick={() => addToCart(p)}
-          >
-            <CardContent className="p-4">
-              <h3 className="text-lg font-semibold">{p.name}</h3>
-              <p className="text-sm text-gray-500">{p.sku}</p>
-              <p className="font-medium">${p.sellingPrice}</p>
-              <Button className="mt-2 w-full" onClick={() => addToCart(p)}>
-                Add to Cart
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              {/* Scrollable Product List */}
+              <div className="flex-1 overflow-y-auto space-y-2">
+                {filteredProducts.map((p) => (
+                  <Card
+                    key={p.id}
+                    className="cursor-pointer hover:shadow-md p-3"
+                    onClick={() => addToCart(p)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-medium">{p.name}</h3>
+                        <p className="text-xs text-gray-500">{p.sku}</p>
+                      </div>
+                      <span className="font-semibold">${p.sellingPrice}</span>
+                    </div>
+                  </Card>
+                ))}
 
-      {/* Cart */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Cart</h2>
-        {cart.length === 0 ? (
-          <p className="text-gray-500">No products added yet.</p>
-        ) : (
-          <div className="space-y-4">
-            {cart.map((item) => (
-              <Card key={item.product.id}>
-                <CardContent className="flex justify-between items-center p-4">
-                  <div>
-                    <h3 className="font-medium">{item.product.name}</h3>
-                    <p className="text-sm text-gray-500">
-                      ${item.product.sellingPrice} × {item.quantity}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        updateQuantity(item.product.id, +e.target.value)
-                      }
-                      className="border w-16 text-center rounded"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeFromCart(item.product.id)}
-                    >
-                      <Trash className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-            <div className="flex justify-between items-center mt-4 font-semibold text-lg">
-              <span>Total:</span>
-              <span>${totalAmount.toFixed(2)}</span>
-            </div>
-            <Button
-              className="mt-4"
-              onClick={() => setIsConfirmDialogOpen(true)}
-              disabled={cart.length === 0}
-            >
-              Confirm Sale
-            </Button>
+                {filteredProducts.length === 0 && (
+                  <p className="text-gray-500 text-sm text-center">
+                    No products found.
+                  </p>
+                )}
+              </div>
+            </Card>
           </div>
-        )}
+
+          {/* RIGHT PANEL */}
+          <div className="flex flex-col space-y-4 overflow-hidden h-full pl-2">
+            <Card className="p-4 h-full flex flex-col justify-between">
+              <div className="flex-1 overflow-y-auto mb-4">
+                <h2 className="text-2xl font-semibold mb-4">Cart</h2>
+
+                {cart.length === 0 ? (
+                  <p className="text-gray-500 text-center mt-6">
+                    Cart is empty.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {cart.map((item) => (
+                      <Card key={item.product.id}>
+                        <CardContent className="flex justify-between items-center p-3">
+                          <div>
+                            <h3 className="font-medium">
+                              {item.product.name}
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                              ${item.product.sellingPrice} × {item.quantity}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.quantity}
+                              onChange={(e) =>
+                                updateQuantity(
+                                  item.product.id,
+                                  +e.target.value
+                                )
+                              }
+                              className="border w-14 text-center rounded"
+                            />
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() =>
+                                removeFromCart(item.product.id)
+                              }
+                            >
+                              <Trash className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="border-t pt-4 bg-white sticky bottom-0">
+                <div className="flex justify-between items-center mb-3 font-semibold">
+                  <span>Total:</span>
+                  <span>${totalAmount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={clearCart}
+                    disabled={!cart.length}
+                  >
+                    Clear Cart
+                  </Button>
+                  <Button
+                    onClick={() => setIsConfirmDialogOpen(true)}
+                    disabled={!cart.length}
+                  >
+                    Checkout
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Confirmation Dialog */}
+      {/* Confirm Sale Dialog */}
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogTitle>Confirm Sale</DialogTitle>
@@ -280,7 +318,10 @@ const Sales = () => {
             <strong>{paymentMethod}</strong>?
           </p>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsConfirmDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleConfirmSale} disabled={isSubmitting}>
