@@ -2,6 +2,7 @@ package com.billingSystem.user_authentication.controller;
 
 import com.billingSystem.user_authentication.entity.User;
 import com.billingSystem.user_authentication.service.UserService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,6 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,14 +48,25 @@ public class UserControllerTest {
     }
 
     @Test
-    void loginUser_success_returnsToken() {
+    void loginUserSuccess() {
         AuthenticationRequest req = new AuthenticationRequest("username", "password");
         when(userService.login("username", "password")).thenReturn("token");
 
+        User user = new User();
+        user.setUsername("username");
+        user.setRoles(Set.of("admin"));
+
+        when(userService.findByUsername("username")).thenReturn(Optional.of(user));
+
         ResponseEntity<AuthenticationResponse> response = userController.loginUser(req);
 
+        Assertions.assertNotNull(response.getBody());
         assertEquals("token", response.getBody().getToken());
+        assertEquals("admin", response.getBody().getRole());
+        assertEquals("username", response.getBody().getUserName());
+
         verify(userService).login("username", "password");
+        verify(userService).findByUsername("username");
     }
 
     @Test

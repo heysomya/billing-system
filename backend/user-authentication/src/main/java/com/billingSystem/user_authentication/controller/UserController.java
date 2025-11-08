@@ -29,9 +29,15 @@ public class UserController {
     public ResponseEntity<AuthenticationResponse> loginUser(@RequestBody AuthenticationRequest authRequest) {
         try {
             String token = userService.login(authRequest.getUsername(), authRequest.getPassword());
-            return ResponseEntity.ok(new AuthenticationResponse(token));
+            User user = userService.findByUsername(authRequest.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            String role = user.getRoles() != null && !user.getRoles().isEmpty()
+                    ? user.getRoles().iterator().next()
+                    : null;
+
+            return ResponseEntity.ok(new AuthenticationResponse(token, role, user.getUsername()));
         } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).body(new AuthenticationResponse("Invalid username or password"));
+            return ResponseEntity.status(401).body(new AuthenticationResponse("Invalid username or password", null, null));
         }
     }
 
