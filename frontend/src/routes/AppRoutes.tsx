@@ -3,6 +3,7 @@ import LandingPage from '../pages/Landing/LandingPage'
 import Dashboard from '@/pages/Dashboard/Dashboard'
 import Products from '@/pages/Products/Products'
 import StockManagement from '@/pages/StockManagement/StockManagement'
+import Sales from '@/pages/Sales/Sales'
 
 export default function AppRoutes() {
   return (
@@ -11,6 +12,7 @@ export default function AppRoutes() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/products" element={<Products />} />
       <Route path="/stock" element={<StockManagement />} />
+      <Route path="/sales" element={<Sales />} />
     </Routes>
   )
 }
