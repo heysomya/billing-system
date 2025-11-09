@@ -2,6 +2,7 @@ package com.billingSystem.sale_recording_service.service;
 
 
 import com.billingSystem.sale_recording_service.entity.Product;
+import com.billingSystem.sale_recording_service.repository.InventoryRepository;
 import com.billingSystem.sale_recording_service.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +23,9 @@ public class InventoryServiceTest {
 
     @InjectMocks
     private InventoryService inventoryService;
+
+    @Mock
+    private InventoryRepository inventoryRepository;
 
     @Test
     public void testGetProductById_Found() {
@@ -59,6 +63,13 @@ public class InventoryServiceTest {
 
         assertEquals(7, product.getQuantityOnHand());
         verify(productRepository).save(product);
+
+        verify(inventoryRepository).save(argThat(log ->
+                log.getProduct().equals(product) &&
+                        log.getQuantityChange() == -3 &&
+                        "Product Sold".equals(log.getReason()) &&
+                        log.getCreatedAt() != null
+        ));
     }
 
     @Test
@@ -74,5 +85,9 @@ public class InventoryServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> inventoryService.updateStock(productId, 5));
         assertTrue(exception.getMessage().contains("Insufficient stock"));
+
+        verify(productRepository, never()).save(any());
+        verify(inventoryRepository, never()).save(any());
+
     }
 }
