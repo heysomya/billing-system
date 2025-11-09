@@ -47,7 +47,7 @@ class UserServiceTest {
         User user = new User();
         user.setUsername("user123");
         user.setPassword("password123");
-        user.setRoles(Set.of("USER"));
+        user.setRole("USER");
 
         when(passwordEncoder.encode(anyString())).thenReturn("encodedpassword");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -74,11 +74,11 @@ class UserServiceTest {
     void login_authenticatedAndReturnsToken() {
         String username = "user123";
         String password = "password123";
-        Set<String> roles = Set.of("USER");
+        String roles = "USER";
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
-        user.setRoles(roles);
+        user.setRole(roles);
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(jwtTokenProvider.createToken(username, roles)).thenReturn("token");
