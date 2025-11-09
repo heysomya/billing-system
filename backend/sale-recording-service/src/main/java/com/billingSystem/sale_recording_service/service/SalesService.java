@@ -20,7 +20,7 @@ import java.util.UUID;
 public class SalesService {
 
     private static final BigDecimal TAX_RATE = new BigDecimal("0.07");
-    private static final BigDecimal DISCOUNT_THRESHOLD = new BigDecimal("1000.00");
+    private static final BigDecimal DISCOUNT_THRESHOLD = new BigDecimal("100.00");
     private static final BigDecimal DISCOUNT_RATE = new BigDecimal("0.05");
 
     @Autowired
