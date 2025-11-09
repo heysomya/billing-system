@@ -91,7 +91,7 @@ const Reports = () => {
     setIsLoading(true);
 
     try {
-      const url = `http://localhost:8094/reports?startDate=${startDate}&endDate=${endDate}`;
+      const url = `http://localhost:8094/reports/?startDate=${startDate}&endDate=${endDate}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Failed to fetch reports: ${res.status}`);
       const rawData = await res.json();
@@ -291,7 +291,7 @@ const Reports = () => {
                     />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="saleCount" name="Sale Count" />
+                    <Bar dataKey="saleCount" name="Sale Count" fill="#2563EB" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -312,7 +312,7 @@ const Reports = () => {
                     <YAxis />
                     <Tooltip formatter={(v: any) => `$${v}`} />
                     <Legend />
-                    <Bar dataKey="totalAmount" name="Revenue" />
+                    <Bar dataKey="totalAmount" name="Revenue" fill="#2563EB" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
