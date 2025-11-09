@@ -7,6 +7,7 @@ import LoginPage from '@/pages/Auth/LoginPage'
 import RegisterPage from '@/pages/Auth/RegisterPage'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import PublicRoute from '@/components/PublicRoute'
+import RoleProtectedRoute from '@/components/RoleProtectedRoute'
 
 export default function AppRoutes() {
   return (
@@ -16,7 +17,7 @@ export default function AppRoutes() {
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
-      <Route path="/stock" element={<ProtectedRoute><StockManagement /></ProtectedRoute>} />
+      <Route path="/stock" element={<RoleProtectedRoute allowedRoles={["ADMIN"]}><StockManagement /></RoleProtectedRoute>} />
     </Routes>
   )
 }
