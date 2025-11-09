@@ -29,9 +29,9 @@ export default function LoginPage() {
       if (!response.ok) throw new Error("Invalid Credentials");
 
       const data = await response.json();
-      localStorage.setItem("token", data.token.toUpperCase());
+      localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role.toUpperCase());
-      localStorage.setItem("username", data.username);
+      localStorage.setItem("username", data.userName);
 
       navigate("/dashboard");
     } catch (err: any) {
