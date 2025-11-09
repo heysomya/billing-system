@@ -44,7 +44,7 @@ public class SalesService {
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
         sale.setCustomer(customer);
 
-        User user = userRepository.findById(request.getCustomerId())
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         sale.setUser(user);
 
