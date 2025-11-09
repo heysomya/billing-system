@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "@/layouts/MainLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Trash, Plus } from "lucide-react";
 
 type Product = {
@@ -23,6 +23,13 @@ type SaleItem = {
   quantity: number;
 };
 
+type NewCustomer = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+};
+
 const Sales = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -34,8 +41,18 @@ const Sales = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
+  const [newCustomer, setNewCustomer] = useState<NewCustomer>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+  });
+  const [isCustomerSubmitting, setIsCustomerSubmitting] = useState(false);
+
   const PRODUCT_API = "http://localhost:8090/api/products/get/all";
   const SALE_API = "http://localhost:8092/sales";
+  const REGISTER_CUSTOMER_API = "http://localhost:8093/auth/registerCustomer";
   const CASHIER_USER_ID = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
 
   useEffect(() => {
@@ -46,7 +63,7 @@ const Sales = () => {
         setProducts(productsData);
         setFilteredProducts(productsData);
 
-        // Dummy customers for now
+        // Dummy customers for now, will get updated when added
         setCustomers([
           { id: "CUST001", name: "Walk-in Customer" },
           { id: "CUST002", name: "John Doe" },
@@ -146,9 +163,49 @@ const Sales = () => {
     }
   };
 
+  // --- Add New Customer Handlers ---
+  const handleCustomerInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setNewCustomer({ ...newCustomer, [e.target.name]: e.target.value });
+  };
+
+  const handleAddCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsCustomerSubmitting(true);
+
+    try {
+      const res = await fetch(REGISTER_CUSTOMER_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCustomer),
+      });
+
+      if (!res.ok) throw new Error("Failed to register customer");
+
+      const data = await res.json();
+
+      // Add new customer to list (assuming backend returns id)
+      const added = {
+        id: data.id || `TEMP-${Date.now()}`,
+        name: `${newCustomer.firstName} ${newCustomer.lastName}`,
+      };
+      setCustomers((prev) => [...prev, added]);
+      setSelectedCustomer(added.id);
+
+      alert("Customer added successfully!");
+      setIsCustomerDialogOpen(false);
+      setNewCustomer({ firstName: "", lastName: "", email: "", phone: "" });
+    } catch (err) {
+      console.error("Error adding customer:", err);
+      alert("Failed to add customer. Please try again.");
+    } finally {
+      setIsCustomerSubmitting(false);
+    }
+  };
+
   return (
     <MainLayout>
-      {/* Reduced height layout */}
       <div className="flex flex-col h-[85vh]">
         <h1 className="text-3xl font-semibold mb-4">Create Sale</h1>
 
@@ -159,7 +216,11 @@ const Sales = () => {
             <Card className="p-4">
               <div className="flex justify-between items-center mb-2">
                 <label className="font-medium">Customer</label>
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsCustomerDialogOpen(true)}
+                >
                   <Plus className="w-4 h-4 mr-1" /> Add New
                 </Button>
               </div>
@@ -202,7 +263,6 @@ const Sales = () => {
                 className="border border-gray-300 rounded-md p-2 w-full mb-3"
               />
 
-              {/* Scrollable Product List */}
               <div className="flex-1 overflow-y-auto space-y-2">
                 {filteredProducts.map((p) => (
                   <Card
@@ -245,9 +305,7 @@ const Sales = () => {
                       <Card key={item.product.id}>
                         <CardContent className="flex justify-between items-center p-3">
                           <div>
-                            <h3 className="font-medium">
-                              {item.product.name}
-                            </h3>
+                            <h3 className="font-medium">{item.product.name}</h3>
                             <p className="text-xs text-gray-500">
                               ${item.product.sellingPrice} × {item.quantity}
                             </p>
@@ -258,19 +316,14 @@ const Sales = () => {
                               min="1"
                               value={item.quantity}
                               onChange={(e) =>
-                                updateQuantity(
-                                  item.product.id,
-                                  +e.target.value
-                                )
+                                updateQuantity(item.product.id, +e.target.value)
                               }
                               className="border w-14 text-center rounded"
                             />
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() =>
-                                removeFromCart(item.product.id)
-                              }
+                              onClick={() => removeFromCart(item.product.id)}
                             >
                               <Trash className="w-4 h-4" />
                             </Button>
@@ -282,7 +335,6 @@ const Sales = () => {
                 )}
               </div>
 
-              {/* Footer */}
               <div className="border-t pt-4 bg-white sticky bottom-0">
                 <div className="flex justify-between items-center mb-3 font-semibold">
                   <span>Total:</span>
@@ -318,16 +370,65 @@ const Sales = () => {
             <strong>{paymentMethod}</strong>?
           </p>
           <div className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsConfirmDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleConfirmSale} disabled={isSubmitting}>
               {isSubmitting ? "Processing..." : "Confirm"}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Customer Dialog */}
+      <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogTitle>Add New Customer</DialogTitle>
+          <DialogDescription>Enter customer details below.</DialogDescription>
+          <form onSubmit={handleAddCustomer} className="flex flex-col space-y-3 mt-3">
+            <input
+              name="firstName"
+              placeholder="First Name"
+              value={newCustomer.firstName}
+              onChange={handleCustomerInputChange}
+              required
+              className="border p-2 rounded"
+            />
+            <input
+              name="lastName"
+              placeholder="Last Name"
+              value={newCustomer.lastName}
+              onChange={handleCustomerInputChange}
+              required
+              className="border p-2 rounded"
+            />
+            <input
+              name="email"
+              placeholder="Email"
+              value={newCustomer.email}
+              onChange={handleCustomerInputChange}
+              type="email"
+              required
+              className="border p-2 rounded"
+            />
+            <input
+              name="phone"
+              placeholder="Phone"
+              value={newCustomer.phone}
+              onChange={handleCustomerInputChange}
+              required
+              className="border p-2 rounded"
+            />
+
+            <div className="flex justify-end gap-2 mt-2">
+              <Button variant="outline" type="button" onClick={() => setIsCustomerDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isCustomerSubmitting}>
+                {isCustomerSubmitting ? "Adding..." : "Add Customer"}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </MainLayout>
