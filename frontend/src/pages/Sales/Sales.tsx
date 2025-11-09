@@ -472,10 +472,12 @@ const Sales = () => {
                   </div>
                 )}
 
-                <div className="flex justify-between text-sm text-blue-600">
-                  <span>Tax (7%):</span>
-                  <span>+ ${tax.toFixed(2)}</span>
-                </div>
+                {totalAmount > 0 && (
+                  <div className="flex justify-between text-sm text-blue-600">
+                    <span>Tax (7%):</span>
+                    <span>+ ${tax.toFixed(2)}</span>
+                  </div>
+                )}
 
                 <div className="flex justify-between text-lg font-semibold border-t pt-2">
                   <span>Final Total:</span>
