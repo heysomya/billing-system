@@ -51,7 +51,7 @@ public class SalesServiceTest {
         SaleRequest.SaleItemDto itemDto = new SaleRequest.SaleItemDto();
         itemDto.setProductId(UUID.randomUUID());
         itemDto.setQuantity(1);
-        itemDto.setUnitPrice(new BigDecimal("700"));
+        itemDto.setUnitPrice(new BigDecimal("101"));
 
         request.setItems(List.of(itemDto));
 
@@ -67,7 +67,7 @@ public class SalesServiceTest {
         Sale sale = salesService.recordSale(request);
 
         assertNotNull(sale);
-        assertEquals(new BigDecimal("749.00"), sale.getTotalAmount());
+        assertEquals(new BigDecimal("102.6665"), sale.getTotalAmount());
         verify(inventoryService).updateStock(itemDto.getProductId(), 1);
     }
 
