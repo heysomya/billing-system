@@ -12,7 +12,7 @@ public class JwtTokenProvider {
     private final String secretKey = "verySecretKeyForJwtSigning"; // Use env vars in prod
     private final long validityInMilliseconds = 3000000; // 1 hour
 
-    public String createToken(String username, Set<String> roles) {
+    public String createToken(String username, String roles) {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("roles", roles);
 

@@ -43,7 +43,7 @@ public class UserService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return jwtTokenProvider.createToken(username, user.getRoles());
+        return jwtTokenProvider.createToken(username, user.getRole());
     }
 }
 

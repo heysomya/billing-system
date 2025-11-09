@@ -54,7 +54,7 @@ public class UserControllerTest {
 
         User user = new User();
         user.setUsername("username");
-        user.setRoles(Set.of("admin"));
+        user.setRole("admin");
 
         when(userService.findByUsername("username")).thenReturn(Optional.of(user));
 

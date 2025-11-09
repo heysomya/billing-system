@@ -31,8 +31,8 @@ public class UserController {
             String token = userService.login(authRequest.getUsername(), authRequest.getPassword());
             User user = userService.findByUsername(authRequest.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            String role = user.getRoles() != null && !user.getRoles().isEmpty()
-                    ? user.getRoles().iterator().next()
+            String role = user.getRole() != null
+                    ? user.getRole()
                     : null;
 
             return ResponseEntity.ok(new AuthenticationResponse(token, role, user.getUsername()));
