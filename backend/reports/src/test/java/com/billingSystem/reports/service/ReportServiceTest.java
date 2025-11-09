@@ -1,6 +1,10 @@
 package com.billingSystem.reports.service;
 
-import com.billingSystem.reports.entities.SalesDetails;
+import com.billingSystem.reports.entities.Product;
+import com.billingSystem.reports.entities.SaleItem;
+import com.billingSystem.reports.entities.SaleReport;
+import com.billingSystem.reports.entities.Sales;
+import com.billingSystem.reports.repository.SaleItemRepository;
 import com.billingSystem.reports.repository.SaleRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,10 +15,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 public class ReportServiceTest {
 
@@ -24,65 +29,45 @@ public class ReportServiceTest {
     @InjectMocks
     private ReportService reportService;
 
+    @Mock
+    SaleItemRepository saleItemRepository;
+
+
     public ReportServiceTest() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testGetDailyReport() {
-        SalesDetails mockSummary = new SalesDetails(
-                LocalDateTime.of(2025, 10, 30, 0, 0),
-                LocalDateTime.of(2025, 10, 30, 23, 59),
-                new BigDecimal("5000"),
-                10L);
+    public void testGetReport() {
+        UUID saleId = UUID.randomUUID();
+        Sales sale = new Sales();
+        sale.setId(saleId);
+        sale.setSaleDate(LocalDateTime.of(2025, 11, 2, 0, 0));
+        sale.setTotalAmount(new BigDecimal("1000"));
 
-        when(saleRepository.findDailySalesSummary(any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(List.of(mockSummary));
+        when(saleRepository.findBySaleDateBetween(
+                LocalDate.of(2025, 11, 1).atStartOfDay(),
+                LocalDate.of(2025, 11, 5).plusDays(1).atStartOfDay()))
+                .thenReturn(List.of(sale));
 
-        List<SalesDetails> result = reportService.getDailyReport(LocalDate.of(2025, 10, 30));
+        Product product = new Product();
+        product.setId(UUID.randomUUID());
+        product.setName("Product A");
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(new BigDecimal("5000"), result.getFirst().getTotalSalesAmount());
-    }
+        SaleItem saleItem = new SaleItem();
+        saleItem.setProduct(product);
+        saleItem.setQuantity(5);
+        saleItem.setSale(sale);
 
-    @Test
-    public void testGetWeeklyReport() {
-        SalesDetails mockSummary = new SalesDetails(
-                LocalDateTime.of(2025, 10, 25, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
-                new BigDecimal("50000"),
-                70L);
+        when(saleItemRepository.findBySaleId(saleId)).thenReturn(List.of(saleItem));
 
-        when(saleRepository.findWeeklySalesSummary(any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(List.of(mockSummary));
+        List<SaleReport> reports = reportService.getReport(LocalDate.of(2025, 11, 1), LocalDate.of(2025, 11, 5));
 
-        List<SalesDetails> result = reportService.getWeeklyReport(
-                LocalDate.of(2025, 10, 25),
-                LocalDate.of(2025, 10, 31));
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(new BigDecimal("50000"), result.getFirst().getTotalSalesAmount());
-    }
-
-    @Test
-    public void testGetMonthlyReport() {
-        SalesDetails mockSummary = new SalesDetails(
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
-                new BigDecimal("100000"),
-                300L);
-
-        when(saleRepository.findMonthlySalesSummary(any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(List.of(mockSummary));
-
-        List<SalesDetails> result = reportService.getMonthlyReport(
-                LocalDate.of(2025, 10, 1),
-                LocalDate.of(2025, 10, 31));
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(new BigDecimal("100000"), result.getFirst().getTotalSalesAmount());
+        assertEquals(1, reports.size());
+        assertEquals(saleId, reports.get(0).getSaleId());
+        assertEquals(new BigDecimal("1000"), reports.get(0).getTotalAmt());
+        assertEquals(1, reports.get(0).getSaleProducts().size());
+        assertEquals("Product A", reports.get(0).getSaleProducts().get(0).getProduct().getName());
+        assertEquals(5, reports.get(0).getSaleProducts().get(0).getSaleQuantity());
     }
 }
