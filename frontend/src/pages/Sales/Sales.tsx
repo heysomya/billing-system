@@ -1,8 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import MainLayout from "@/layouts/MainLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Trash, Plus } from "lucide-react";
 
 type Product = {
@@ -41,6 +46,8 @@ const Sales = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [cashierId, setCashierId] = useState<string>(""); // NEW
+
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState<NewCustomer>({
     firstName: "",
@@ -50,42 +57,71 @@ const Sales = () => {
   });
   const [isCustomerSubmitting, setIsCustomerSubmitting] = useState(false);
 
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
+
   const PRODUCT_API = "http://localhost:8090/api/products/get/all";
+  const CUSTOMERS_API = "http://localhost:8095/user-management/customers";
+  const GET_USER_API = "http://localhost:8095/user-management/getUser"; // base path
   const SALE_API = "http://localhost:8092/sales";
   const REGISTER_CUSTOMER_API = "http://localhost:8093/auth/registerCustomer";
-  const CASHIER_USER_ID = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+
+  const allCustomersRef = useRef<Customer[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
       try {
-        const res = await fetch(PRODUCT_API);
-        const productsData = await res.json();
+        // 1️⃣ Get username from localStorage
+        const username = localStorage.getItem("username");
+        if (username) {
+          const userRes = await fetch(`${GET_USER_API}/${username}`);
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            setCashierId(userData.id);
+          } else {
+            console.warn("Could not fetch cashier info");
+          }
+        }
+
+        // 2️⃣ Fetch products and customers
+        const [productRes, customerRes] = await Promise.all([
+          fetch(PRODUCT_API),
+          fetch(CUSTOMERS_API),
+        ]);
+
+        const productsData = await productRes.json();
         setProducts(productsData);
         setFilteredProducts(productsData);
 
-        // Dummy customers for now, will get updated when added
-        setCustomers([
-          { id: "CUST001", name: "Walk-in Customer" },
-          { id: "CUST002", name: "John Doe" },
-        ]);
+        const customersData = await customerRes.json();
+        const formattedCustomers = customersData.map((c: any) => ({
+          id: c.id,
+          name: `${c.firstName} ${c.lastName}`,
+        }));
+
+        setCustomers(formattedCustomers);
+        allCustomersRef.current = formattedCustomers;
       } catch (error) {
         console.error("Error loading data:", error);
       }
     };
-    fetchData();
+
+    fetchInitialData();
   }, []);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (!query.trim()) setFilteredProducts(products);
-    else
+    else {
+      const lower = query.toLowerCase();
       setFilteredProducts(
         products.filter(
           (p) =>
-            p.name.toLowerCase().includes(query.toLowerCase()) ||
-            p.sku.toLowerCase().includes(query.toLowerCase())
+            p.name.toLowerCase().includes(lower) ||
+            p.sku.toLowerCase().includes(lower)
         )
       );
+    }
   };
 
   const addToCart = (product: Product) => {
@@ -123,15 +159,24 @@ const Sales = () => {
     0
   );
 
+  const discount = totalAmount >= 100 ? totalAmount * 0.05 : 0; // 5%
+  const tax = (totalAmount - discount) * 0.07; // 7% on discounted total
+  const finalTotal = totalAmount - discount + tax;
+
   const handleConfirmSale = async () => {
     if (!selectedCustomer || cart.length === 0) {
       alert("Please select a customer and add at least one product.");
       return;
     }
 
+    if (!cashierId) {
+      alert("Cashier ID not found. Please re-login or refresh.");
+      return;
+    }
+
     const salePayload = {
       customerId: selectedCustomer,
-      userId: CASHIER_USER_ID,
+      userId: cashierId, // ✅ dynamic userId
       paymentMethod,
       items: cart.map((item) => ({
         productId: item.product.id,
@@ -150,9 +195,12 @@ const Sales = () => {
 
       if (!res.ok) throw new Error("Failed to create sale");
 
+      // console.log("Sale submitted:", salePayload);
+
       alert("Sale created successfully!");
       clearCart();
       setSelectedCustomer("");
+      setCustomerSearch("");
       setPaymentMethod("CASH");
       setIsConfirmDialogOpen(false);
     } catch (err) {
@@ -163,7 +211,6 @@ const Sales = () => {
     }
   };
 
-  // --- Add New Customer Handlers ---
   const handleCustomerInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -185,13 +232,14 @@ const Sales = () => {
 
       const data = await res.json();
 
-      // Add new customer to list (assuming backend returns id)
-      const added = {
+      const added: Customer = {
         id: data.id || `TEMP-${Date.now()}`,
         name: `${newCustomer.firstName} ${newCustomer.lastName}`,
       };
       setCustomers((prev) => [...prev, added]);
+      allCustomersRef.current = [...allCustomersRef.current, added];
       setSelectedCustomer(added.id);
+      setCustomerSearch(added.name);
 
       alert("Customer added successfully!");
       setIsCustomerDialogOpen(false);
@@ -204,6 +252,23 @@ const Sales = () => {
     }
   };
 
+  const handleCustomerFilter = (query: string) => {
+    setCustomerSearch(query);
+
+    if (!query.trim()) {
+      setCustomers(allCustomersRef.current);
+      setShowCustomerSuggestions(false);
+      return;
+    }
+
+    const lower = query.toLowerCase();
+    const filtered = allCustomersRef.current.filter((c) =>
+      c.name.toLowerCase().includes(lower)
+    );
+    setCustomers(filtered);
+    setShowCustomerSuggestions(true);
+  };
+
   return (
     <MainLayout>
       <div className="flex flex-col h-[85vh]">
@@ -213,7 +278,7 @@ const Sales = () => {
           {/* LEFT PANEL */}
           <div className="flex flex-col space-y-4 overflow-hidden h-full pr-2">
             {/* Customer Selection */}
-            <Card className="p-4">
+            <Card className="p-4 relative">
               <div className="flex justify-between items-center mb-2">
                 <label className="font-medium">Customer</label>
                 <Button
@@ -224,18 +289,41 @@ const Sales = () => {
                   <Plus className="w-4 h-4 mr-1" /> Add New
                 </Button>
               </div>
-              <select
-                value={selectedCustomer}
-                onChange={(e) => setSelectedCustomer(e.target.value)}
-                className="border border-gray-300 rounded-md p-2 w-full"
-              >
-                <option value="">-- Select Customer --</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search customer by name"
+                  value={customerSearch}
+                  onChange={(e) => handleCustomerFilter(e.target.value)}
+                  onFocus={() => {
+                    if (customerSearch.trim().length > 0) {
+                      setShowCustomerSuggestions(true);
+                    }
+                  }}
+                  className="border border-gray-300 rounded-md p-2 w-full"
+                />
+
+                {showCustomerSuggestions &&
+                  customerSearch.trim().length > 0 &&
+                  customers.length > 0 && (
+                    <ul className="absolute left-0 top-full bg-white border border-gray-300 rounded-md w-full mt-1 max-h-40 overflow-y-auto z-20 shadow-md">
+                      {customers.map((c) => (
+                        <li
+                          key={c.id}
+                          className="p-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => {
+                            setSelectedCustomer(c.id);
+                            setCustomerSearch(c.name);
+                            setShowCustomerSuggestions(false);
+                          }}
+                        >
+                          {c.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+              </div>
             </Card>
 
             {/* Payment Method */}
@@ -275,7 +363,9 @@ const Sales = () => {
                         <h3 className="font-medium">{p.name}</h3>
                         <p className="text-xs text-gray-500">{p.sku}</p>
                       </div>
-                      <span className="font-semibold">${p.sellingPrice}</span>
+                      <span className="font-semibold">
+                        ${p.sellingPrice}
+                      </span>
                     </div>
                   </Card>
                 ))}
@@ -289,7 +379,7 @@ const Sales = () => {
             </Card>
           </div>
 
-          {/* RIGHT PANEL */}
+          {/* RIGHT PANEL — unchanged */}
           <div className="flex flex-col space-y-4 overflow-hidden h-full pl-2">
             <Card className="p-4 h-full flex flex-col justify-between">
               <div className="flex-1 overflow-y-auto mb-4">
@@ -305,7 +395,9 @@ const Sales = () => {
                       <Card key={item.product.id}>
                         <CardContent className="flex justify-between items-center p-3">
                           <div>
-                            <h3 className="font-medium">{item.product.name}</h3>
+                            <h3 className="font-medium">
+                              {item.product.name}
+                            </h3>
                             <p className="text-xs text-gray-500">
                               ${item.product.sellingPrice} × {item.quantity}
                             </p>
@@ -316,14 +408,19 @@ const Sales = () => {
                               min="1"
                               value={item.quantity}
                               onChange={(e) =>
-                                updateQuantity(item.product.id, +e.target.value)
+                                updateQuantity(
+                                  item.product.id,
+                                  +e.target.value
+                                )
                               }
                               className="border w-14 text-center rounded"
                             />
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => removeFromCart(item.product.id)}
+                              onClick={() =>
+                                removeFromCart(item.product.id)
+                              }
                             >
                               <Trash className="w-4 h-4" />
                             </Button>
@@ -335,12 +432,49 @@ const Sales = () => {
                 )}
               </div>
 
-              <div className="border-t pt-4 bg-white sticky bottom-0">
+              {/* <div className="border-t pt-4 bg-white sticky bottom-0">
                 <div className="flex justify-between items-center mb-3 font-semibold">
                   <span>Total:</span>
                   <span>${totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={clearCart}
+                    disabled={!cart.length}
+                  >
+                    Clear Cart
+                  </Button>
+                  <Button
+                    onClick={() => setIsConfirmDialogOpen(true)}
+                    disabled={!cart.length}
+                  >
+                    Checkout
+                  </Button>
+                </div>
+              </div> */}
+              <div className="border-t pt-4 bg-white sticky bottom-0 space-y-2">
+                <div className="flex justify-between items-center text-sm">
+                  <span>Subtotal:</span>
+                  <span>${totalAmount.toFixed(2)}</span>
+                </div>
+                {totalAmount >= 100 && (
+                  <div className="flex justify-between items-center text-sm text-green-600">
+                    <span>Discount (5%):</span>
+                    <span>- ${discount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-sm text-blue-600">
+                  <span>Tax (7%):</span>
+                  <span>+ ${tax.toFixed(2)}</span>
+                </div>
+
+                <div className="flex justify-between items-center text-lg font-semibold border-t pt-2">
+                  <span>Final Total:</span>
+                  <span>${finalTotal.toFixed(2)}</span>
+                </div>
+
+                <div className="flex justify-between mt-3">
                   <Button
                     variant="outline"
                     onClick={clearCart}
@@ -370,7 +504,10 @@ const Sales = () => {
             <strong>{paymentMethod}</strong>?
           </p>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsConfirmDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleConfirmSale} disabled={isSubmitting}>
@@ -385,7 +522,10 @@ const Sales = () => {
         <DialogContent className="sm:max-w-md">
           <DialogTitle>Add New Customer</DialogTitle>
           <DialogDescription>Enter customer details below.</DialogDescription>
-          <form onSubmit={handleAddCustomer} className="flex flex-col space-y-3 mt-3">
+          <form
+            onSubmit={handleAddCustomer}
+            className="flex flex-col space-y-3 mt-3"
+          >
             <input
               name="firstName"
               placeholder="First Name"
@@ -421,7 +561,11 @@ const Sales = () => {
             />
 
             <div className="flex justify-end gap-2 mt-2">
-              <Button variant="outline" type="button" onClick={() => setIsCustomerDialogOpen(false)}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setIsCustomerDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isCustomerSubmitting}>
