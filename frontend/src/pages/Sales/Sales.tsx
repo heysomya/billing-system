@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Trash, Plus } from "lucide-react";
+import { Trash, Plus, CheckCircle } from "lucide-react";
 
 type Product = {
   id: string;
@@ -46,7 +46,7 @@ const Sales = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [cashierId, setCashierId] = useState<string>(""); // NEW
+  const [cashierId, setCashierId] = useState<string>("");
 
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState<NewCustomer>({
@@ -60,30 +60,30 @@ const Sales = () => {
   const [customerSearch, setCustomerSearch] = useState("");
   const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
 
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [recentSaleId, setRecentSaleId] = useState<string | null>(null);
+
   const PRODUCT_API = "http://localhost:8090/api/products/get/all";
   const CUSTOMERS_API = "http://localhost:8095/user-management/customers";
-  const GET_USER_API = "http://localhost:8095/user-management/getUser"; // base path
+  const GET_USER_API = "http://localhost:8095/user-management/getUser";
   const SALE_API = "http://localhost:8092/sales";
   const REGISTER_CUSTOMER_API = "http://localhost:8093/auth/registerCustomer";
 
   const allCustomersRef = useRef<Customer[]>([]);
 
+  // Fetch products, customers, and cashier info
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        // 1️⃣ Get username from localStorage
         const username = localStorage.getItem("username");
         if (username) {
           const userRes = await fetch(`${GET_USER_API}/${username}`);
           if (userRes.ok) {
             const userData = await userRes.json();
             setCashierId(userData.id);
-          } else {
-            console.warn("Could not fetch cashier info");
           }
         }
 
-        // 2️⃣ Fetch products and customers
         const [productRes, customerRes] = await Promise.all([
           fetch(PRODUCT_API),
           fetch(CUSTOMERS_API),
@@ -109,6 +109,7 @@ const Sales = () => {
     fetchInitialData();
   }, []);
 
+  // Product search
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (!query.trim()) setFilteredProducts(products);
@@ -124,6 +125,7 @@ const Sales = () => {
     }
   };
 
+  // Cart management
   const addToCart = (product: Product) => {
     const existing = cart.find((item) => item.product.id === product.id);
     if (existing) {
@@ -154,15 +156,16 @@ const Sales = () => {
 
   const clearCart = () => setCart([]);
 
+  // Calculations
   const totalAmount = cart.reduce(
     (sum, item) => sum + item.product.sellingPrice * item.quantity,
     0
   );
-
-  const discount = totalAmount >= 100 ? totalAmount * 0.05 : 0; // 5%
-  const tax = (totalAmount - discount) * 0.07; // 7% on discounted total
+  const discount = totalAmount >= 100 ? totalAmount * 0.05 : 0; // 5% if total ≥ 100
+  const tax = (totalAmount - discount) * 0.07; // 7%
   const finalTotal = totalAmount - discount + tax;
 
+  // Sale submission
   const handleConfirmSale = async () => {
     if (!selectedCustomer || cart.length === 0) {
       alert("Please select a customer and add at least one product.");
@@ -176,7 +179,7 @@ const Sales = () => {
 
     const salePayload = {
       customerId: selectedCustomer,
-      userId: cashierId, // ✅ dynamic userId
+      userId: cashierId,
       paymentMethod,
       items: cart.map((item) => ({
         productId: item.product.id,
@@ -195,9 +198,10 @@ const Sales = () => {
 
       if (!res.ok) throw new Error("Failed to create sale");
 
-      // console.log("Sale submitted:", salePayload);
+      const data = await res.json();
+      setRecentSaleId(data.id);
+      setIsSuccessDialogOpen(true);
 
-      alert("Sale created successfully!");
       clearCart();
       setSelectedCustomer("");
       setCustomerSearch("");
@@ -211,6 +215,33 @@ const Sales = () => {
     }
   };
 
+  // Receipt download
+  const handleDownloadReceipt = async () => {
+    if (!recentSaleId) return;
+
+    try {
+      const pdfRes = await fetch(
+        `http://localhost:8092/sales/${recentSaleId}/receipt/pdf`
+      );
+
+      if (!pdfRes.ok) throw new Error("Failed to download receipt");
+
+      const blob = await pdfRes.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Sale_Receipt_${recentSaleId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading receipt:", error);
+      alert("Failed to download receipt. Please try again.");
+    }
+  };
+
+  // Add new customer
   const handleCustomerInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -252,9 +283,9 @@ const Sales = () => {
     }
   };
 
+  // Customer filter
   const handleCustomerFilter = (query: string) => {
     setCustomerSearch(query);
-
     if (!query.trim()) {
       setCustomers(allCustomersRef.current);
       setShowCustomerSuggestions(false);
@@ -277,7 +308,6 @@ const Sales = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-hidden">
           {/* LEFT PANEL */}
           <div className="flex flex-col space-y-4 overflow-hidden h-full pr-2">
-            {/* Customer Selection */}
             <Card className="p-4 relative">
               <div className="flex justify-between items-center mb-2">
                 <label className="font-medium">Customer</label>
@@ -326,7 +356,6 @@ const Sales = () => {
               </div>
             </Card>
 
-            {/* Payment Method */}
             <Card className="p-4">
               <label className="font-medium mb-2 block">Payment Method</label>
               <select
@@ -340,7 +369,7 @@ const Sales = () => {
               </select>
             </Card>
 
-            {/* Product Search */}
+            {/* PRODUCTS */}
             <Card className="p-4 flex flex-col flex-1 overflow-hidden">
               <label className="font-medium mb-2 block">Search Product</label>
               <input
@@ -363,13 +392,10 @@ const Sales = () => {
                         <h3 className="font-medium">{p.name}</h3>
                         <p className="text-xs text-gray-500">{p.sku}</p>
                       </div>
-                      <span className="font-semibold">
-                        ${p.sellingPrice}
-                      </span>
+                      <span className="font-semibold">${p.sellingPrice}</span>
                     </div>
                   </Card>
                 ))}
-
                 {filteredProducts.length === 0 && (
                   <p className="text-gray-500 text-sm text-center">
                     No products found.
@@ -379,7 +405,7 @@ const Sales = () => {
             </Card>
           </div>
 
-          {/* RIGHT PANEL — unchanged */}
+          {/* RIGHT PANEL */}
           <div className="flex flex-col space-y-4 overflow-hidden h-full pl-2">
             <Card className="p-4 h-full flex flex-col justify-between">
               <div className="flex-1 overflow-y-auto mb-4">
@@ -432,54 +458,32 @@ const Sales = () => {
                 )}
               </div>
 
-              {/* <div className="border-t pt-4 bg-white sticky bottom-0">
-                <div className="flex justify-between items-center mb-3 font-semibold">
-                  <span>Total:</span>
-                  <span>${totalAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={clearCart}
-                    disabled={!cart.length}
-                  >
-                    Clear Cart
-                  </Button>
-                  <Button
-                    onClick={() => setIsConfirmDialogOpen(true)}
-                    disabled={!cart.length}
-                  >
-                    Checkout
-                  </Button>
-                </div>
-              </div> */}
+              {/* Footer with totals */}
               <div className="border-t pt-4 bg-white sticky bottom-0 space-y-2">
-                <div className="flex justify-between items-center text-sm">
+                <div className="flex justify-between text-sm">
                   <span>Subtotal:</span>
                   <span>${totalAmount.toFixed(2)}</span>
                 </div>
+
                 {totalAmount >= 100 && (
-                  <div className="flex justify-between items-center text-sm text-green-600">
+                  <div className="flex justify-between text-sm text-green-600">
                     <span>Discount (5%):</span>
                     <span>- ${discount.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center text-sm text-blue-600">
+
+                <div className="flex justify-between text-sm text-blue-600">
                   <span>Tax (7%):</span>
                   <span>+ ${tax.toFixed(2)}</span>
                 </div>
 
-                <div className="flex justify-between items-center text-lg font-semibold border-t pt-2">
+                <div className="flex justify-between text-lg font-semibold border-t pt-2">
                   <span>Final Total:</span>
                   <span>${finalTotal.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between mt-3">
-                  <Button
-                    variant="outline"
-                    onClick={clearCart}
-                    disabled={!cart.length}
-                  >
+                  <Button variant="outline" onClick={clearCart} disabled={!cart.length}>
                     Clear Cart
                   </Button>
                   <Button
@@ -500,7 +504,7 @@ const Sales = () => {
         <DialogContent className="sm:max-w-md">
           <DialogTitle>Confirm Sale</DialogTitle>
           <p>
-            Proceed with sale for total amount ${totalAmount.toFixed(2)} using{" "}
+            Proceed with sale for total amount ${finalTotal.toFixed(2)} using{" "}
             <strong>{paymentMethod}</strong>?
           </p>
           <div className="flex justify-end gap-2 mt-4">
@@ -517,15 +521,31 @@ const Sales = () => {
         </DialogContent>
       </Dialog>
 
+      {/* ✅ Success Dialog */}
+      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <DialogContent className="sm:max-w-md text-center space-y-4">
+          <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
+          <DialogTitle className="text-green-600 text-xl font-semibold">
+            Sale Created Successfully!
+          </DialogTitle>
+          <p>Your sale has been recorded successfully.</p>
+          <div className="flex justify-center gap-4 mt-4">
+            <Button variant="outline" onClick={() => setIsSuccessDialogOpen(false)}>
+              Close
+            </Button>
+            <Button onClick={handleDownloadReceipt}>
+              Download Receipt
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Add Customer Dialog */}
       <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogTitle>Add New Customer</DialogTitle>
           <DialogDescription>Enter customer details below.</DialogDescription>
-          <form
-            onSubmit={handleAddCustomer}
-            className="flex flex-col space-y-3 mt-3"
-          >
+          <form onSubmit={handleAddCustomer} className="flex flex-col space-y-3 mt-3">
             <input
               name="firstName"
               placeholder="First Name"
@@ -559,13 +579,8 @@ const Sales = () => {
               required
               className="border p-2 rounded"
             />
-
             <div className="flex justify-end gap-2 mt-2">
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => setIsCustomerDialogOpen(false)}
-              >
+              <Button variant="outline" type="button" onClick={() => setIsCustomerDialogOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isCustomerSubmitting}>
