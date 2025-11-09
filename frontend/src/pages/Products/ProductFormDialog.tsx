@@ -93,6 +93,7 @@ const ProductFormDialog = ({
               onChange={handleChange}
               required
               className="border p-2 rounded"
+              disabled={mode === "edit"}
             />
           </div>
 
@@ -141,6 +142,7 @@ const ProductFormDialog = ({
               type="number"
               required
               className="border p-2 rounded"
+              disabled={mode === "edit"}
             />
           </div>
 

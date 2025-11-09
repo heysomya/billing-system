@@ -9,6 +9,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import PublicRoute from '@/components/PublicRoute'
 import RoleProtectedRoute from '@/components/RoleProtectedRoute'
 import Reports from '@/pages/Reports/Reports'
+import Sales from '@/pages/Sales/Sales'
 
 export default function AppRoutes() {
   return (
@@ -20,6 +21,7 @@ export default function AppRoutes() {
       <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
       <Route path="/stock" element={<RoleProtectedRoute allowedRoles={["ADMIN"]}><StockManagement /></RoleProtectedRoute>} />
       <Route path="/reports" element={<RoleProtectedRoute allowedRoles={["ADMIN"]}><Reports /></RoleProtectedRoute>} />
+      <Route path="/sales" element={<RoleProtectedRoute allowedRoles={["CASHIER"]}><Sales /></RoleProtectedRoute>} />
     </Routes>
   )
 }

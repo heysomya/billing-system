@@ -22,7 +22,6 @@ class StockServiceTest {
 
     private ProductRepository productRepository;
     private StockRepository stockRepository;
-    private EmailService emailService;
     private StockService stockService;
 
     private UUID productId;
@@ -32,9 +31,8 @@ class StockServiceTest {
     void setUp() {
         productRepository = Mockito.mock(ProductRepository.class);
         stockRepository = Mockito.mock(StockRepository.class);
-        emailService = Mockito.mock(EmailService.class);
 
-        stockService = new StockService(productRepository, stockRepository, emailService);
+        stockService = new StockService(productRepository, stockRepository);
 
         productId = UUID.randomUUID();
         product = new Product();
@@ -61,7 +59,6 @@ class StockServiceTest {
         assertEquals("sold", log.getReason());
         assertEquals(product, log.getProduct());
 
-        verify(emailService, never()).sendStockAlert(anyString(), anyString(), anyInt());
     }
 
     @Test
@@ -71,11 +68,9 @@ class StockServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
 
-        String result = stockService.updateStock(productId, -2, "sold");
+        stockService.updateStock(productId, -2, "sold");
 
-        assertTrue(result.contains("Warning: Stock is low"));
         assertEquals(9, product.getQuantityOnHand());
-        verify(emailService).sendStockAlert(anyString(), eq("Test Product"), eq(9));
     }
 
     @Test
@@ -83,7 +78,6 @@ class StockServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> stockService.updateStock(productId, 1, "reason"));
         verify(productRepository, never()).save(any());
-        verify(emailService, never()).sendStockAlert(anyString(), anyString(), anyInt());
     }
 
     @Test

@@ -20,13 +20,10 @@ public class StockService {
     private ProductRepository productRepository;
     @Autowired
     private StockRepository stockRepository;
-    @Autowired
-    private EmailService emailService;
 
-    public StockService(ProductRepository productRepository, StockRepository stockRepository, EmailService emailService) {
+    public StockService(ProductRepository productRepository, StockRepository stockRepository) {
         this.productRepository = productRepository;
         this.stockRepository = stockRepository;
-        this.emailService = emailService;
     }
 
     public String updateStock(UUID productId, int change, String reason) {
@@ -42,10 +39,6 @@ public class StockService {
         log.setCreatedAt(Instant.now());
         stockRepository.save(log);
 
-//        if (product.getQuantityOnHand() < product.getMinStockLevel()) {
-//            emailService.sendStockAlert("email", product.getName(), product.getQuantityOnHand());
-//            return "Warning: Stock is low for product " + product.getName();
-//        }
         return "Stock updated successfully";
     }
 
