@@ -40,6 +40,7 @@ class StockServiceTest {
         product.setName("Test Product");
         product.setQuantityOnHand(20);
         product.setMinStockLevel(10);
+        product.setCategory("electronics");
     }
 
     @Test
