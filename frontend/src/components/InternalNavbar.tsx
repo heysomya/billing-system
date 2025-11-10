@@ -9,17 +9,14 @@ const InternalNavbar = () => {
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch user data from localStorage when component mounts
     const role = localStorage.getItem("role");
     const name = localStorage.getItem("username");
     setUserRole(role);
     setUsername(name);
   }, []);
 
-  // Helper function to check if the link is active
   const isActive = (path: string) => location.pathname === path;
 
-  // Common button style for all nav items
   const navButtonStyle = (path: string) =>
     `px-3 py-2 rounded-md transition ${
       isActive(path)
@@ -27,19 +24,27 @@ const InternalNavbar = () => {
         : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
     }`;
 
-  // Logout function
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("username");
-
     navigate("/login", { replace: true });
   };
+
+  // Define allowed links per role
+  const navLinks = [
+    { label: "Dashboard", path: "/dashboard", roles: ["ADMIN", "CASHIER"] },
+    { label: "Products", path: "/products", roles: ["ADMIN", "CASHIER"] },
+    { label: "Stock", path: "/stock", roles: ["ADMIN"] },
+    { label: "Sales", path: "/sales", roles: ["CASHIER"] },
+    { label: "Reports", path: "/reports", roles: ["ADMIN"] },
+    { label: "Users", path: "/users", roles: ["ADMIN"] },
+  ];
 
   return (
     <nav className="w-full bg-white dark:bg-gray-900 shadow-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-        {/* Left side: Logo / App Name */}
+        {/* Logo */}
         <div
           className="text-2xl font-bold text-blue-600 cursor-pointer"
           onClick={() => navigate("/dashboard")}
@@ -47,52 +52,22 @@ const InternalNavbar = () => {
           BillFast
         </div>
 
-        {/* Middle: Nav Links */}
+        {/* Nav Links */}
         <div className="hidden md:flex space-x-4 text-gray-700 dark:text-gray-200 font-medium">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className={navButtonStyle("/dashboard")}
-          >
-            Dashboard
-          </button>
-
-          <button
-            onClick={() => navigate("/products")}
-            className={navButtonStyle("/products")}
-          >
-            Products
-          </button>
-
-          <button
-            onClick={() => navigate("/stock")}
-            className={navButtonStyle("/stock")}
-          >
-            Stock
-          </button>
-
-          <button
-            onClick={() => navigate("/sales")}
-            className={navButtonStyle("/sales")}
-          >
-            Sales
-          </button>
-
-          <button
-            onClick={() => navigate("/reports")}
-            className={navButtonStyle("/reports")}
-          >
-            Reports
-          </button>
-
-          <button
-            onClick={() => navigate("/customers")}
-            className={navButtonStyle("/customers")}
-          >
-            Customers
-          </button>
+          {navLinks
+            .filter((link) => userRole && link.roles.includes(userRole.toUpperCase()))
+            .map((link) => (
+              <button
+                key={link.path}
+                onClick={() => navigate(link.path)}
+                className={navButtonStyle(link.path)}
+              >
+                {link.label}
+              </button>
+            ))}
         </div>
 
-        {/* Right side: User + Logout */}
+        {/* Right side */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 text-gray-700 dark:text-gray-200">
             <User className="w-5 h-5" />
