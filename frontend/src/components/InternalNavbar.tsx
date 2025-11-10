@@ -85,10 +85,10 @@ const InternalNavbar = () => {
           </button>
 
           <button
-            onClick={() => navigate("/customers")}
-            className={navButtonStyle("/customers")}
+            onClick={() => navigate("/users")}
+            className={navButtonStyle("/users")}
           >
-            Customers
+            Users
           </button>
         </div>
 

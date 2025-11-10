@@ -37,12 +37,12 @@ export default function Dashboard() {
       allowed: ["ADMIN"], // only admins
     },
     {
-      title: "Customers",
-      description: "Manage customer details and purchase history.",
+      title: "Users and Customers",
+      description: "Manage user details and permissions.",
       icon: <Users className="w-8 h-8 text-teal-500" />,
-      route: "/customers",
-      allowed: ["ADMIN", "CASHIER"],
-    },
+      route: "/users",
+      allowed: ["ADMIN"],
+    }
   ];
 
   const visibleTiles = allTiles.filter((tile) => tile.allowed.includes(role ?? "CASHIER"));
