@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.Mockito.*;
+
 public class ProductControllerTest {
 
     @Mock
@@ -42,6 +44,7 @@ public class ProductControllerTest {
                 UUID.fromString("e4a1a8a2-374d-45f6-8e25-bad4721688a2"),
                 10,
                 "Ergonomic 2.4GHz wireless Logitech Wireless Mouse with nano receiver",
+                "Electronics",
                 15.90,
                 21.99,
                 120,
@@ -56,6 +59,7 @@ public class ProductControllerTest {
                 UUID.fromString("2fae7b3e-5d6d-424e-9e47-712f4b7df024"),
                 5,
                 "RGB mechanical keyboard with blue switches and wrist rest",
+                 "Electronics",
                 49.99,
                 69.99,
                 60,
@@ -66,7 +70,7 @@ public class ProductControllerTest {
 
     @Test
     void testGetProductById() {
-        Mockito.when(productService.findById(id1)).thenReturn(Optional.of(product1));
+        when(productService.findById(id1)).thenReturn(Optional.of(product1));
 
         ResponseEntity<Product> response = productController.getProductById(id1);
 
@@ -76,7 +80,7 @@ public class ProductControllerTest {
 
     @Test
     void testGetProductByIdNotFound() {
-        Mockito.when(productService.findById(id2)).thenReturn(Optional.empty());
+        when(productService.findById(id2)).thenReturn(Optional.empty());
 
         ResponseEntity<Product> response = productController.getProductById(id2);
 
@@ -86,7 +90,7 @@ public class ProductControllerTest {
 
     @Test
     void testCreateProduct() {
-        Mockito.when(productService.create(product1)).thenReturn(product1);
+        when(productService.create(product1)).thenReturn(product1);
 
         ResponseEntity<Product> response = productController.createProduct(product1);
 
@@ -96,7 +100,7 @@ public class ProductControllerTest {
 
     @Test
     void testUpdateProduct() {
-        Mockito.when(productService.update(id1, product1)).thenReturn(product1);
+        when(productService.update(id1, product1)).thenReturn(product1);
 
         ResponseEntity<Product> response = productController.updateProduct(id1, product1);
 
@@ -106,7 +110,7 @@ public class ProductControllerTest {
 
     @Test
     void testUpdateProductNotFound() {
-        Mockito.when(productService.update(id2, product1)).thenThrow(new RuntimeException("Product not found"));
+        when(productService.update(id2, product1)).thenThrow(new RuntimeException("Product not found"));
 
         ResponseEntity<Product> response = productController.updateProduct(id2, product1);
 
@@ -126,7 +130,7 @@ public class ProductControllerTest {
     void testGetAllProducts() {
         List<Product> products = Arrays.asList(product1, product2);
 
-        Mockito.when(productService.findAll()).thenReturn(products);
+        when(productService.findAll()).thenReturn(products);
 
         List<Product> actualProducts = productController.getAllProducts();
 
@@ -138,7 +142,7 @@ public class ProductControllerTest {
     @Test
     void testSearchProductsByName() {
 
-        Mockito.when(productService.searchByName("Logitech Wireless Mouse")).thenReturn(product1);
+        when(productService.searchByName("Logitech Wireless Mouse")).thenReturn(product1);
 
         Product actualProducts = productController.searchProductsByName("Logitech Wireless Mouse");
 
@@ -146,7 +150,7 @@ public class ProductControllerTest {
     }
     @Test
     void testSearchProductsBySKU() {
-        Mockito.when(productService.searchBySKU("SKU1001")).thenReturn(product1);
+        when(productService.searchBySKU("SKU1001")).thenReturn(product1);
 
         Product actualProduct = productController.searchProductsBySKU("SKU1001");
 
@@ -154,5 +158,24 @@ public class ProductControllerTest {
         Assertions.assertEquals("SKU1001", actualProduct.getSku());
         Assertions.assertEquals("Logitech Wireless Mouse", actualProduct.getName());
     }
+
+    @Test
+    public void testSearchProductsByCategory() {
+        String category = "Electronics";
+        Product product = new Product();
+        product.setId(UUID.randomUUID());
+        product.setName("Laptop");
+        product.setCategory(category);
+
+        when(productService.searchByCategory(category)).thenReturn(product);
+
+        Product result = productController.searchProductsByCategory(category);
+
+        verify(productService, times(1)).searchByCategory(category);
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(category, result.getCategory());
+        Assertions.assertNotNull("Laptop", result.getName());
+    }
+
 
 }

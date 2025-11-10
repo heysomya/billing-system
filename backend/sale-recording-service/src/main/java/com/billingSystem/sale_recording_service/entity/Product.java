@@ -24,6 +24,7 @@ public class Product {
     private String sku;
 
     private String description;
+    private String category;
 
     @Column(name = "cost_price")
     private BigDecimal costPrice;

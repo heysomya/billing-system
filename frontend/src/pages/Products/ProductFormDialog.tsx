@@ -11,6 +11,7 @@ export type FormData = {
   name: string;
   sku: string;
   description: string;
+  category: string;
   costPrice: string;
   sellingPrice: string;
   quantityOnHand: string;
@@ -29,6 +30,7 @@ const emptyForm: FormData = {
   name: "",
   sku: "",
   description: "",
+  category: "",
   costPrice: "",
   sellingPrice: "",
   quantityOnHand: "",
@@ -105,6 +107,27 @@ const ProductFormDialog = ({
               onChange={handleChange}
               className="border p-2 rounded"
             />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={(e) =>
+                setFormData({ ...formData, category: e.target.value })
+              }
+              required
+              className="border p-2 rounded"
+            >
+              <option value="">Select a category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Stationery">Stationery</option>
+              <option value="Furniture">Furniture</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
 
           <div className="flex flex-col">

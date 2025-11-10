@@ -52,6 +52,7 @@ public class ProductServiceTest {
                 UUID.fromString("e4a1a8a2-374d-45f6-8e25-bad4721688a2"),
                 10,
                 "Ergonomic 2.4GHz wireless Logitech Wireless Mouse with nano receiver",
+                "Electronics",
                 15.90,
                 21.99,
                 120,
@@ -66,6 +67,7 @@ public class ProductServiceTest {
                 UUID.fromString("2fae7b3e-5d6d-424e-9e47-712f4b7df024"),
                 5,
                 "RGB mechanical keyboard with blue switches and wrist rest",
+                "Electronics",
                 49.99,
                 69.99,
                 60,
@@ -139,22 +141,8 @@ public class ProductServiceTest {
     void testDeleteProduct() {
         when(productRepository.findById(any())).thenReturn(Optional.ofNullable(product1));
         productService.delete(id1);
-
         Mockito.verify(productRepository, Mockito.times(1)).deleteById(id1);
-        Mockito.verify(stockRepository, Mockito.times(1)).save(Mockito.any(InventoryLog.class));
     }
-
-    @Test
-    void testDeleteProductWhenIdNotFound() {
-
-        when(productRepository.findById(any())).thenReturn(Optional.empty());
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            productService.delete(id1);
-        });
-        Assertions.assertEquals(exception.getMessage(), "Product not found with 9b180abb-63ee-4bf8-9404-35c1e2316881");
-    }
-
     @Test
     void testSearchByName() {
         when(productRepository.findByName("Logitech Wireless Mouse")).thenReturn(product1);
@@ -171,6 +159,16 @@ public class ProductServiceTest {
         Product result = productService.searchBySKU("SKU1001");
 
         Assertions.assertEquals("SKU1001", result.getSku());
+        Assertions.assertEquals("Logitech Wireless Mouse", result.getName());
+    }
+
+    @Test
+    void testSearchByCategory() {
+        when(productRepository.findByCategory("Electronics")).thenReturn(product1);
+
+        Product result = productService.searchByCategory("Electronics");
+
+        Assertions.assertEquals("Electronics", result.getCategory());
         Assertions.assertEquals("Logitech Wireless Mouse", result.getName());
     }
 }

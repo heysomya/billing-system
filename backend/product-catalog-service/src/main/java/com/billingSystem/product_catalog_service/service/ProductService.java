@@ -44,6 +44,7 @@ public class ProductService {
                     existingProduct.setName(updatedProduct.getName());
                     existingProduct.setCostPrice(updatedProduct.getCostPrice());
                     existingProduct.setDescription(updatedProduct.getDescription());
+                    existingProduct.setCategory(updatedProduct.getCategory());
                     existingProduct.setSku(updatedProduct.getSku());
                     existingProduct.setQuantityOnHand(updatedProduct.getQuantityOnHand());
                     existingProduct.setSellingPrice(updatedProduct.getSellingPrice());
@@ -64,6 +65,10 @@ public class ProductService {
 
     public Product searchBySKU(String name) {
         return productRepository.findBySku(name);
+    }
+
+    public Product searchByCategory(String name) {
+        return productRepository.findByCategory(name);
     }
 
     private void saveLogs(Product product, String reason) {
