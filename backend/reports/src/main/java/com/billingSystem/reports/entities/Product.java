@@ -43,20 +43,5 @@ public class Product {
 
     public Product() {
     }
-
-    public Product(UUID id, String name, String sku, UUID supplierId, Integer minStockLevel, String description, String category, Double costPrice, Double sellingPrice, Integer quantityOnHand, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
-        this.id = id;
-        this.name = name;
-        this.sku = sku;
-        this.supplierId = supplierId;
-        this.minStockLevel = minStockLevel;
-        this.description = description;
-        this.category = category;
-        this.costPrice = costPrice;
-        this.sellingPrice = sellingPrice;
-        this.quantityOnHand = quantityOnHand;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
 }
 
