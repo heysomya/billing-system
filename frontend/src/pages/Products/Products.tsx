@@ -10,6 +10,7 @@ type Product = {
   id: string;
   name: string;
   sku: string;
+  category: string;
   minStockLevel: number;
   description: string;
   costPrice: number;
@@ -24,7 +25,8 @@ const Products = () => {
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"add" | "edit">("add");
-  const [searchType, setSearchType] = useState<"name" | "SKU">("name");
+  // const [searchType, setSearchType] = useState<"name" | "SKU">("name");
+  const [searchType, setSearchType] = useState<"name" | "SKU" | "category">("name");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
@@ -42,6 +44,7 @@ const Products = () => {
         sku: p.sku,
         minStockLevel: p.minStockLevel,
         description: p.description,
+        category: p.category,
         costPrice: p.costPrice,
         sellingPrice: p.sellingPrice,
         quantityOnHand: p.quantityOnHand,
@@ -171,13 +174,25 @@ const Products = () => {
 
       <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
         <div className="flex items-center flex-wrap gap-2">
-          <select
+          {/* <select
             value={searchType}
             onChange={(e) => setSearchType(e.target.value as "name" | "SKU")}
             className="border border-gray-300 rounded-md p-2"
           >
             <option value="name">Search by Name</option>
             <option value="SKU">Search by SKU</option>
+          </select> */}
+
+          <select
+            value={searchType}
+            onChange={(e) =>
+              setSearchType(e.target.value as "name" | "SKU" | "category")
+            }
+            className="border border-gray-300 rounded-md p-2"
+          >
+            <option value="name">Search by Name</option>
+            <option value="SKU">Search by SKU</option>
+            <option value="category">Search by Category</option>
           </select>
 
           <input
@@ -206,7 +221,6 @@ const Products = () => {
         </Button>
       </div>
 
-
       {products.length === 0 ? (
         <p className="text-gray-500 text-center mt-10">No products found.</p>
       ) : (
@@ -230,18 +244,22 @@ const Products = () => {
               <CardContent className="p-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold">{product.name}</h3>
-                  <span className="text-gray-700 font-medium">${product.sellingPrice}</span>
+                  <span className="text-gray-700 font-medium">
+                    ${product.sellingPrice}
+                  </span>
                 </div>
               </CardContent>
             </Card>
           ))}
-      </div>
-
+        </div>
       )}
 
       {/* Product Details Dialog */}
       {detailsProduct && (
-        <Dialog open={!!detailsProduct} onOpenChange={() => setDetailsProduct(null)}>
+        <Dialog
+          open={!!detailsProduct}
+          onOpenChange={() => setDetailsProduct(null)}
+        >
           <DialogContent className="sm:max-w-lg">
             {/* Product Image */}
             <div className="h-48 w-full overflow-hidden rounded-md mb-4">
@@ -256,18 +274,33 @@ const Products = () => {
             <DialogDescription>{detailsProduct.description}</DialogDescription>
 
             <div className="mt-4 space-y-2 text-gray-700">
-              <p><strong>SKU:</strong> {detailsProduct.sku}</p>
-              <p><strong>Cost Price:</strong> ${detailsProduct.costPrice}</p>
-              <p><strong>Selling Price:</strong> ${detailsProduct.sellingPrice}</p>
-              <p><strong>Stock:</strong> {detailsProduct.quantityOnHand}</p>
-              <p><strong>Min Stock Level:</strong> {detailsProduct.minStockLevel}</p>
+              <p>
+                <strong>SKU:</strong> {detailsProduct.sku}
+              </p>
+              <p>
+                <strong>Category:</strong> {detailsProduct.category}
+              </p>
+              <p>
+                <strong>Cost Price:</strong> ${detailsProduct.costPrice}
+              </p>
+              <p>
+                <strong>Selling Price:</strong> ${detailsProduct.sellingPrice}
+              </p>
+              <p>
+                <strong>Stock:</strong> {detailsProduct.quantityOnHand}
+              </p>
+              <p>
+                <strong>Min Stock Level:</strong> {detailsProduct.minStockLevel}
+              </p>
             </div>
 
             <div className="flex justify-end space-x-2 mt-4">
               <Button
                 variant="destructive"
                 className="flex items-center space-x-2"
-                onClick={() => detailsProduct && handleDelete(detailsProduct.id)}
+                onClick={() =>
+                  detailsProduct && handleDelete(detailsProduct.id)
+                }
               >
                 <Trash className="w-4 h-4" />
                 <span>Delete</span>
@@ -298,6 +331,7 @@ const Products = () => {
                 name: selectedProduct.name,
                 sku: selectedProduct.sku,
                 description: selectedProduct.description,
+                category: selectedProduct.category,
                 costPrice: selectedProduct.costPrice.toString(),
                 sellingPrice: selectedProduct.sellingPrice.toString(),
                 quantityOnHand: selectedProduct.quantityOnHand.toString(),
