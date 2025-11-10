@@ -54,10 +54,10 @@ public class ProductController {
         return productService.searchByName(name);
     }
 
-//    @GetMapping("/search/category")
-//    public List<Product> searchProductsByCategory(@RequestParam String category) {
-//        return productService.searchByCategory(category);
-//    }
+    @GetMapping("/search/category/{category}")
+    public Product searchProductsByCategory(@PathVariable String category) {
+        return productService.searchByCategory(category);
+    }
 
     @GetMapping("/search/SKU/{SKU}")
     public Product searchProductsBySKU(@PathVariable String SKU) {

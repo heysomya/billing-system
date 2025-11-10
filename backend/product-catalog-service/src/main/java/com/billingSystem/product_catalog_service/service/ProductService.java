@@ -66,6 +66,10 @@ public class ProductService {
         return productRepository.findBySku(name);
     }
 
+    public Product searchByCategory(String name) {
+        return productRepository.findByCategory(name);
+    }
+
     private void saveLogs(Product product, String reason) {
             InventoryLog log = new InventoryLog();
             log.setProduct(product);
