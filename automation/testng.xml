@@ -1,0 +1,26 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="DemoBlaze Suite" verbose="1">
+
+<listeners>
+    <listener class-name="com.billingSystem.automation.ExtentTestNGListener"/>
+</listeners>
+
+<test name="Chrome Headed">
+    <parameter name="browser" value="chrome"/>
+    <parameter name="headless" value="false"/>
+    <classes>
+        <class name="com.billingSystem.automation.UIPagesTest.LoginPageTest"/>
+        <class name="com.billingSystem.automation.UIPagesTest.DashboardPageTest"/>
+        <class name="com.billingSystem.automation.UIPagesTest.ProductTest"/>
+        <class name="com.billingSystem.automation.UIPagesTest.LogoutTest"/>
+        <class name="com.billingSystem.automation.UIPagesTest.RegistrationPageTest"/>
+        <class name="com.billingSystem.automation.UIPagesTest.ReportsPageTest"/>
+        <class name="com.billingSystem.automation.UIPagesTest.StockTest"/>
+        <class name="com.billingSystem.automation.UIPagesTest.SalesPageTest"/>
+        <class name="com.billingSystem.automation.UIPagesTest.UsersPageTest"/>
+
+
+    </classes>
+</test>
+
+</suite>
