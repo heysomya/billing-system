@@ -30,7 +30,7 @@ public class UserControllerTest {
     private UserService userService;
 
     @Test
-    void registerUser_returnsCreatedUser() {
+    void registerUserReturnsCreatedUser() {
         User user = new User();
         user.setUsername("name");
         user.setPassword("name");
@@ -70,7 +70,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void loginUser_failure_returnsErrorMessage() {
+    void loginUserFailureReturnsErrorMessage() {
         AuthenticationRequest req = new AuthenticationRequest("user123", "password123");
         when(userService.login(anyString(), anyString()))
                 .thenThrow(new BadCredentialsException("Invalid username or password"));

@@ -28,7 +28,7 @@ public class InventoryServiceTest {
     private InventoryRepository inventoryRepository;
 
     @Test
-    public void testGetProductById_Found() {
+    public void testGetProductByIdFound() {
         UUID productId = UUID.randomUUID();
         Product product = new Product();
         product.setId(productId);
@@ -49,7 +49,7 @@ public class InventoryServiceTest {
     }
 
     @Test
-    public void testUpdateStock_Success() {
+    public void testUpdateStockSuccess() {
         UUID productId = UUID.randomUUID();
         Product product = new Product();
         product.setId(productId);
@@ -73,7 +73,7 @@ public class InventoryServiceTest {
     }
 
     @Test
-    public void testUpdateStock_InsufficientStock() {
+    public void testUpdateStockInsufficientStock() {
         UUID productId = UUID.randomUUID();
         Product product = new Product();
         product.setId(productId);
