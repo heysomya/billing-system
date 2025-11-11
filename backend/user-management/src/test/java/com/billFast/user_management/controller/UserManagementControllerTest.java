@@ -83,8 +83,8 @@ class UserManagementControllerTest {
     }
 
     @Test
-    void getUserByUserName_notFound_returnsEmpty() {
-        String name = "nonexistent";
+    void getUserByUserNameNotFoundReturnsEmpty() {
+        String name = "User";
         when(userManagementService.getUserByName(name)).thenReturn(Optional.empty());
 
         Optional<User> result = userManagementController.getUserByUserName(name);

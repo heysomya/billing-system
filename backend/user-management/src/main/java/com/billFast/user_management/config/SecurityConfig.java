@@ -14,9 +14,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)                  // Disable CSRF with lambda style
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())   // Permit all requests
-                .httpBasic(withDefaults());                      // Enable basic auth using defaults
+                .httpBasic(withDefaults());
 
         return http.build();
     }

@@ -43,7 +43,7 @@ class UserServiceTest {
     }
 
     @Test
-    void register_shouldSaveEncodedUser() {
+    void registerShouldSaveEncodedUser() {
         User user = new User();
         user.setUsername("user123");
         user.setPassword("password123");
@@ -60,7 +60,7 @@ class UserServiceTest {
     }
 
     @Test
-    void findByUsername_returnsUser() {
+    void findByUsernameReturnsUser() {
         User user = new User();
         user.setUsername("user123");
         when(userRepository.findByUsername("user123")).thenReturn(Optional.of(user));
@@ -71,7 +71,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login_authenticatedAndReturnsToken() {
+    void loginAuthenticatedAndReturnsToken() {
         String username = "user123";
         String password = "password123";
         String roles = "USER";
@@ -91,7 +91,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login_userNotFound_throwsException() {
+    void login_userNotFoundThrowsException() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(mock(Authentication.class));

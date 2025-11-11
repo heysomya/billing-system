@@ -28,7 +28,6 @@ class CustomerServiceTest {
         inputCustomer.setEmail("test@test.com");
         inputCustomer.setPhone("1234567890");
 
-        // Mock repository.save to return the argument as saved item
         when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Customer registeredCustomer = customerService.register(inputCustomer);
