@@ -1,7 +1,6 @@
 package com.billingSystem.automation.UIPagesTest;
 
 import com.billingSystem.automation.UIPages.LoginPage;
-import com.billingSystem.automation.util.ScreenshotUtil;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
