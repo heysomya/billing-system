@@ -10,15 +10,15 @@ management, stock tracking, sales processing, and reporting into one platform.
 1. Install Java JDK (used 21 version) and Maven
 2. Intellij IDE and VSCode
 
-#### Tech Stack
-1. Language: Java
+#### Tech Stack & Frameworks
+1. Language: Java 21
 2. Framework: Spring Boot
 3. Database: Supabase (PostgreSQL)
 4. Build Tool: Maven
 5. API Testing: Postman
 6. Version control: Git
 7. Testing framework: Junit5 (Unit testing), TestNG (automation testing)
-8. 
+8. Selenium
 
 #### Microservices: 
 1. product catalog: Server Port: 8090 
