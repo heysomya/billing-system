@@ -73,9 +73,6 @@ public class ProductTest {
 
         // Assert that the card is enabled and displayed (i.e., clickable)
         Assert.assertTrue(card.isDisplayed() && card.isEnabled(), "Logitech Mouse product card is not clickable");
-
-        // Optionally, click it
-        // card.click();
     }
 
 

@@ -16,7 +16,6 @@ public class BaseTest {
         WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
-        // Headed mode by default (no "--headless" argument)
 
         WebDriver wd = new ChromeDriver(options);
         wd.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
