@@ -1,62 +1,90 @@
-# billing-system (BillFast)
+# BillFast - Inventory Management System
 
 ## Overview
-Inventory Management System designed to streamline retail operations by integrating product
-management, stock tracking, sales processing, and reporting into one platform.
+**BillFast** is a full-stack **Inventory Management System** designed to streamline retail operations by integrating product management, stock tracking, sales processing, and reporting into one platform.  
+It supports multiple user roles with secure authentication and real-time data flow between frontend and backend services.
+
+---
+
+## Features
+
+- **Product Catalog** – Add, edit, delete, and view products.  
+- **Stock Management** – Track inventory levels and get low-stock alerts.  
+- **Sales Recording** – Record each sale automatically and maintain transaction history.  
+- **Billing System** – Generate purchase receipts automatically (PDF download supported).  
+- **Reports** – View daily, weekly, and monthly sales summaries.  
+- **Search & Filter** – Quickly find products by name, category, or SKU.  
+- **User Roles** – Role-based access for Admins and Cashiers with authentication.  
+- **Discount & Tax Management** – Apply discounts and taxes automatically to sales.  
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-------------|
+| Frontend | React + TypeScript + Vite + Tailwind CSS |
+| Backend | Spring Boot + Java |
+| Database | PostgreSQL (Supabase) |
+| Communication | RESTful APIs |
+| Authentication | JWT-based Security |
+
+---
+
+## Setup Instructions
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/heysomya/billing-system.git
+cd billing-system
+```
 
 
-## Backend:
-## Environment Setup and Requirements
-1. Install Java JDK (used 21 version) and Maven
-2. Intellij IDE
-3. Chrome is required for automation testing
+### 2. Navigate to Project Parts
 
-#### Tech Stack & Frameworks
-1. Language: Java 21
-2. Framework: Spring Boot
-3. Database: Supabase (PostgreSQL)
-4. Build Tool: Maven
-5. API Testing: Postman
-6. Version control: Git
-7. Testing framework: Junit5 (Unit testing), TestNG (automation testing)
-8. Selenium
+The repository contains three main folders — with the backend and frontend folders with its own README for setup and configuration details.
+```
+billfast/
+│
+├── automation/ # Automated testing
+│
+├── frontend/   # React + Vite web application
+│   └── README.md
+│
+└── backend/    # Spring Boot microservices (user, product, sales, etc.)
+    └── README.md
+```
 
-#### Microservices: 
-1. product catalog: Server Port: 8090 
-2. stock management: Server Port: 8091
-3. sale recording: Server Port: 8092
-4. user authentication: Server Port: 8093
-5. reports: Server Port: 8094
-6. user management: Server Port: 8095
+### 3. Follow Individual Setup Guides
 
+Each part has a detailed README with its own installation steps:
 
-#### Running the application:
-1. Open the project in intellij 
-2. In Integrated terminal, Go to the required service
-3. Execute "mvn spring-boot:run" and click enter
-4. You will see tomcat running on the server port for that service.
-    1. The service will be running in http://localhost:{port_number}/
-5. Run all the services so that frontend will be connected to backend in the specified ports
+Frontend:
+```bash
+cd frontend
+```
 
-#### Run test file for unit testing:
-Command: mvn test
+Backend:
+```bash
+cd backend
+```
 
+### 4. Architecture
+```
+ ┌──────────────────────┐
+ │      Frontend        │
+ │  React + Tailwind UI │
+ └──────────┬───────────┘
+            │ REST API Calls
+ ┌──────────▼────────────┐
+ │       Backend         │
+ │  Spring Boot Services │
+ └──────────┬────────────┘
+            │
+ ┌──────────▼────────────┐
+ │       Database        │
+ │ PostgreSQL (Supabase) │
+ └───────────────────────┘
 
-#### Automation Testing:
-### Dependencies
-- Selenium
-- Spring Boot
-- WebDriverManager (bonigarcia)
-- testng (TestNG framework)
-- extentreports (For reports)
-- commons-io (For screenshots capturing)
-
-### Running Tests
-- First run the src/test folder 
-- and from next time run the test select /testng.xml file
-- Right click on the file and
-- click run the file
-
-### Reports
-- test report file can be found under target/site/extent-report.html
-- It has interactive html file for test reports generated
+```
