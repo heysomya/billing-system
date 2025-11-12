@@ -33,7 +33,7 @@ public class RegisterPage {
         driver.findElement(passwordField).sendKeys(password);
 
         WebElement roleSelect = driver.findElement(roleDropdown);
-        roleSelect.sendKeys(role); // works because options have values ADMIN/CASHIER
+        roleSelect.sendKeys(role);
 
         driver.findElement(registerBtn).click();
     }

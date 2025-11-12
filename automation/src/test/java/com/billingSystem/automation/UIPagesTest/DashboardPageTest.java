@@ -34,7 +34,7 @@ public class DashboardPageTest {
     @Test(description = "Verify Dashboard is displayed after login")
     public void testDashboardOpened() {
         // Wait for Dashboard heading or container
-        By dashboardHeading = By.cssSelector("h1.text-3xl"); // Assuming <h1> has text "Dashboard"
+        By dashboardHeading = By.cssSelector("h1.text-3xl");
         wait.until(ExpectedConditions.visibilityOfElementLocated(dashboardHeading));
 
         String headingText = driver.findElement(dashboardHeading).getText();

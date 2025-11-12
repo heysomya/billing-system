@@ -71,7 +71,6 @@ public class ReportsPageTest {
         );
         generateButton.click();
 
-        // Optional: wait for results chart to appear
         wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.cssSelector("h2.text-lg.font-semibold") // Chart heading
         ));
