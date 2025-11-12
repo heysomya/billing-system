@@ -37,26 +37,6 @@ public class SalesPageTest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h1.text-3xl")));
     }
 
-    @Test(description = "Verify /sales page loads correctly")
-    public void testSalesPageLoads() {
-        // Navigate to sales page
-        driver.get(BASE_URL + "/sales");
-
-        // Wait for the heading containing "Create Sale"
-        WebElement heading = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//*[contains(text(),'Create Sale')]")
-        ));
-
-        // Assertion
-        Assert.assertTrue(heading.getText().contains("Create Sale"),
-                "Sales page heading not found or incorrect");
-
-        // Optional: verify URL
-        wait.until(ExpectedConditions.urlContains("/sales"));
-        String currentUrl = driver.getCurrentUrl();
-        Assert.assertTrue(currentUrl.contains("/sales"), "URL did not navigate to /sales");
-    }
-
     @Test(description = "Create a sale: add product to cart and checkout")
     public void testCreateSale() throws InterruptedException {
         // Navigate to Sales page

@@ -23,7 +23,7 @@ public class LoginPageTest {
 
     @Test(priority = 1, description = "Valid login")
     public void testValidLogin() {
-        loginPage.loginUser("automationtest123", "pass123");
+        loginPage.loginUser("automationtest001", "pass123");
         Assert.assertTrue(loginPage.isLoginSuccessful(), "Expected navigation to /dashboard after login");
     }
 

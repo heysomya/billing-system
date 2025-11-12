@@ -6,9 +6,10 @@ management, stock tracking, sales processing, and reporting into one platform.
 
 
 ## Backend:
-## Environment Setup
+## Environment Setup and Requirements
 1. Install Java JDK (used 21 version) and Maven
-2. Intellij IDE and VSCode
+2. Intellij IDE
+3. Chrome is required for automation testing
 
 #### Tech Stack & Frameworks
 1. Language: Java 21
@@ -30,11 +31,12 @@ management, stock tracking, sales processing, and reporting into one platform.
 
 
 #### Running the application:
-1. In terminal, Go to the required service
-2. Execute "mvn spring-boot:run" and click enter
-3. You will see tomcat running on the server port for that service.
+1. Open the project in intellij 
+2. In Integrated terminal, Go to the required service
+3. Execute "mvn spring-boot:run" and click enter
+4. You will see tomcat running on the server port for that service.
     1. The service will be running in http://localhost:{port_number}/
-4. Run all the services so that frontend will be connected to backend in the specified ports
+5. Run all the services so that frontend will be connected to backend in the specified ports
 
 #### Run test file for unit testing:
 Command: mvn test
@@ -50,7 +52,8 @@ Command: mvn test
 - commons-io (For screenshots capturing)
 
 ### Running Tests
-- To run the test select /testng.xml file
+- First run the src/test folder 
+- and from next time run the test select /testng.xml file
 - Right click on the file and
 - click run the file
 
