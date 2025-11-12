@@ -24,9 +24,19 @@ public class RegistrationPageTest {
         registrationPage = new RegisterPage(driver);
     }
 
-    @Test(priority = 1, description = "Valid registration test for Admin user")
+    @Test(priority = 1, description = "Invalid registration test")
+    public void testInvalidRegistration() {
+        registrationPage.registerUser("somya", "123", "CASHIER");
+
+        // wait for error message
+        String error = registrationPage.getErrorMessage();
+        Assert.assertNotNull(error, "Expected registration failure message");
+        Assert.assertEquals(error, "Registration failed", "Error message mismatch");
+    }
+
+    @Test(priority = 2, description = "Valid registration test for Admin user")
     public void testValidRegistration() {
-        registrationPage.registerUser("automationtest1990", "pass123", "ADMIN");
+        registrationPage.registerUser("automationtestAdmin001", "pass123", "ADMIN");
 
         // Wait for navigation to /login after registration
         new WebDriverWait(driver, Duration.ofSeconds(10))
@@ -38,15 +48,7 @@ public class RegistrationPageTest {
     }
 
 
-    @Test(priority = 2, description = "Invalid registration test")
-    public void testInvalidRegistration() {
-        registrationPage.registerUser("somya", "123", "CASHIER");
 
-        // wait for error message
-        String error = registrationPage.getErrorMessage();
-        Assert.assertNotNull(error, "Expected registration failure message");
-        Assert.assertEquals(error, "Registration failed", "Error message mismatch");
-    }
 
     @AfterClass
     public void tearDown() {

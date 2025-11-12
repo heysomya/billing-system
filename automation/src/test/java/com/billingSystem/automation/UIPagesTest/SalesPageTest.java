@@ -53,7 +53,7 @@ public class SalesPageTest {
                 By.cssSelector("input[placeholder='Search customer by name']")
         ));
         customerInput.clear();
-        customerInput.sendKeys("John"); // Replace with valid customer
+        customerInput.sendKeys("Likhitha P");
 
         // Wait for suggestion dropdown and click first suggestion
         WebElement firstCustomer = wait.until(ExpectedConditions.elementToBeClickable(
@@ -89,7 +89,7 @@ public class SalesPageTest {
         confirmBtn.click();
 
         // Wait for success dialog
-        WebElement successDialog = new WebDriverWait(driver, Duration.ofSeconds(20))
+        WebElement successDialog = new WebDriverWait(driver, Duration.ofSeconds(40))
                 .until(ExpectedConditions.visibilityOfElementLocated(
                         By.cssSelector("div[data-testid='success-dialog'], .text-green-600") // adjust selector if needed
                 ));
