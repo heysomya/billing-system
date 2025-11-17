@@ -4,11 +4,13 @@ import com.billingSystem.product_catalog_service.entity.InventoryLog;
 import com.billingSystem.product_catalog_service.entity.Product;
 import com.billingSystem.product_catalog_service.repository.ProductRepository;
 import com.billingSystem.product_catalog_service.repository.StockRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,8 +57,13 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + id));
     }
 
+    @Transactional
     public void delete(UUID id) {
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        stockRepository.deleteByProduct(product);
+        productRepository.delete(product);
     }
 
     public Product searchByName(String name) {
@@ -67,8 +74,8 @@ public class ProductService {
         return productRepository.findBySku(name);
     }
 
-    public Product searchByCategory(String name) {
-        return productRepository.findByCategory(name);
+    public List<Product> searchByCategory(String category) {
+        return productRepository.findAllByCategory(category);
     }
 
     private void saveLogs(Product product, String reason) {

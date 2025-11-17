@@ -13,14 +13,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProductServiceTest {
 
@@ -140,9 +137,12 @@ public class ProductServiceTest {
     @Test
     void testDeleteProduct() {
         when(productRepository.findById(any())).thenReturn(Optional.ofNullable(product1));
+        when(stockRepository.deleteByProduct(product1)).thenReturn(Collections.emptyList());
         productService.delete(id1);
-        Mockito.verify(productRepository, Mockito.times(1)).deleteById(id1);
+        verify(stockRepository, times(1)).deleteByProduct(product1);
+        verify(productRepository, times(1)).delete(product1);
     }
+
     @Test
     void testSearchByName() {
         when(productRepository.findByName("Logitech Wireless Mouse")).thenReturn(product1);
@@ -164,11 +164,11 @@ public class ProductServiceTest {
 
     @Test
     void testSearchByCategory() {
-        when(productRepository.findByCategory("Electronics")).thenReturn(product1);
+        when(productRepository.findAllByCategory("Electronics")).thenReturn(Collections.singletonList(product1));
 
-        Product result = productService.searchByCategory("Electronics");
+        List<Product> result = productService.searchByCategory("Electronics");
 
-        Assertions.assertEquals("Electronics", result.getCategory());
-        Assertions.assertEquals("Logitech Wireless Mouse", result.getName());
+        Assertions.assertEquals("Electronics", result.get(0).getCategory());
+        Assertions.assertEquals("Logitech Wireless Mouse", result.get(0).getName());
     }
 }

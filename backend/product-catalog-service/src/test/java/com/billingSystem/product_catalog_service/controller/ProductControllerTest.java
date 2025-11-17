@@ -12,10 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -167,14 +164,14 @@ public class ProductControllerTest {
         product.setName("Laptop");
         product.setCategory(category);
 
-        when(productService.searchByCategory(category)).thenReturn(product);
+        when(productService.searchByCategory(category)).thenReturn(Collections.singletonList(product));
 
-        Product result = productController.searchProductsByCategory(category);
+        List<Product> result = productController.searchProductsByCategory(category);
 
         verify(productService, times(1)).searchByCategory(category);
         Assertions.assertNotNull(result);
-        Assertions.assertNotNull(category, result.getCategory());
-        Assertions.assertNotNull("Laptop", result.getName());
+        Assertions.assertNotNull(category, result.get(0).getCategory());
+        Assertions.assertNotNull("Laptop", result.get(0).getName());
     }
 
 

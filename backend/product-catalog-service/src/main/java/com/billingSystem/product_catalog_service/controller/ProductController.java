@@ -55,7 +55,7 @@ public class ProductController {
     }
 
     @GetMapping("/search/category/{category}")
-    public Product searchProductsByCategory(@PathVariable String category) {
+    public List<Product> searchProductsByCategory(@PathVariable String category) {
         return productService.searchByCategory(category);
     }
 
